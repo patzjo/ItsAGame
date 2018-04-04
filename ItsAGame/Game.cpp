@@ -111,14 +111,9 @@ void Game::playLoop()
 		processEvents(renderer.getWindow());
 		
 		world.update(deltaTime);
+	
 
-		std::string text;
-
-		text = "FPS: ";
-		text += std::to_string(framesPerSec);
-		renderer.pushText(text, {0.0f, 0.0f}, 0, 32, sf::Color::White);
-		
-		world.collisionTree.updateTree();
+		showFPS(framesPerSec);
 
 		renderer.render();
 		
@@ -141,5 +136,16 @@ void Game::menuLoop()
 		processEvents(renderer.getWindow());
 		renderer.render();
 	}
+}
+
+void Game::showFPS(int frameCount)
+{
+	if (!FPSCounter)
+		return;
+	
+	std::string text;
+	text = "FPS: ";
+	text += std::to_string(frameCount);
+	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
 }
 

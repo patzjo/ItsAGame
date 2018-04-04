@@ -8,6 +8,18 @@ void CollisionQTree::add(class GameObject *object)
 	insert(object, object->position);
 }
 
+void CollisionQTree::remove(GameObject * object)
+{
+	for (auto itr = trackedObjects.begin(); itr != trackedObjects.end(); itr++)
+	{
+		if (*itr == object)
+		{
+			trackedObjects.erase(itr);
+			return;
+		}
+	}
+}
+
 void CollisionQTree::updateTree()
 {
 	clear();
@@ -30,7 +42,7 @@ void CollisionQTree::draw(class Renderer *renderer, sf::Color color, float borde
 	{
 		int size = 8;
 
-		size += 4 * nodes[c].objects.size();
+		size += 4 * (int)nodes[c].objects.size();
 		renderer->pushText(std::to_string(nodes[c].objects.size()), nodes[c].cell.centerPos, 0, size, sf::Color::Yellow, true);
 	}
 }

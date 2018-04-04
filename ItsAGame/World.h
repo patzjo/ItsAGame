@@ -20,6 +20,7 @@ public:
 	void checkCollisions();
 	
 	GameObject *createObject(sf::Vector2f position, GameObject *object);
+	void removeObject(GameObject *object);
 
 private:
 	Level level;

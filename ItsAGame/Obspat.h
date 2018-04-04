@@ -22,7 +22,7 @@ private:
 
 class Subject
 {
-protected:
+public:
 	void addObserver(Observer *observer)
 	{
 		observers.push_back(observer);

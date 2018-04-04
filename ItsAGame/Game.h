@@ -23,6 +23,9 @@ public:
 	void playLoop();
 	void menuLoop();
 
+	void showFPS(int frameCount);
+	void toggleFPS() { FPSCounter = !FPSCounter; }
+
 private:
 	struct GameOptions options;
 	class Input input;
@@ -30,5 +33,8 @@ private:
 	class Renderer renderer;
 
 	int status = START_NEW_GAME;
+
+
+	bool FPSCounter = true;
 };
 

@@ -7,6 +7,7 @@ class CollisionQTree : public QTree<GameObject>
 {
 public:
 	void add(class GameObject *object);
+	void remove(class GameObject *object);
 	void updateTree();
 	void draw(class Renderer *renderer, sf::Color color, float borderSize);
 

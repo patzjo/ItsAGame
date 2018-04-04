@@ -61,6 +61,46 @@ struct QTreeNode
 		w.draw(rect);
 	}
 
+	std::vector <T *> getObjectsInRange(Square<float> area)
+	{
+		std::vector <T *> objectList;
+
+		if (!area.boxIntersect(cell))
+			return objectList;
+		
+		for (QTreeNodeWrapper<T>& object : objects)
+		{
+			if (area.containsPoint(object.position))
+				objectList.push_back(object.object);
+		}
+
+		if (topLeft == nullptr)
+			return objectList;
+
+		if (topLeft->inUse)
+		{
+			auto temp = topLeft->getObjectsInRange(area);
+			objectList.insert(std::end(objectList), std::begin(temp), std::end(temp));
+		}
+		if (topRight->inUse)
+		{
+			auto temp = topRight->getObjectsInRange(area);
+			objectList.insert(std::end(objectList), std::begin(temp), std::end(temp));
+		}
+		if (bottomLeft->inUse)
+		{
+			auto temp = bottomLeft->getObjectsInRange(area);
+			objectList.insert(std::end(objectList), std::begin(temp), std::end(temp));
+		}
+		if (bottomRight->inUse)
+		{
+			auto temp = bottomRight->getObjectsInRange(area);
+			objectList.insert(std::end(objectList), std::begin(temp), std::end(temp));
+		}
+
+		return objectList;
+	}
+
 	QTreeNode() {};
 };
 
@@ -172,11 +212,6 @@ public:
 		}
 	}
 
-	std::vector <T> getObjectsRange(Square<float> area)
-	{
-		
-	}
-
 	bool _insert(QTreeNode<T> *node, QTreeNodeWrapper <T>item)
 	{
 		
@@ -223,6 +258,10 @@ public:
 		
 		_insert(&nodes[0], object);
 		
+	}
+	std::vector <T *> getObjectsInRange(Square<float> area)
+	{
+		return nodes[0].getObjectsInRange(area);
 	}
 
 	~QTree()

@@ -12,7 +12,7 @@ struct Component
 	virtual void update() {};
 };
 
-struct RenderComponent : Component
+struct RenderComponent : public Component
 {
 	float time = 0.0f;
 	float timePerFrame = 0.5f;
@@ -26,7 +26,7 @@ struct RenderComponent : Component
 	class Renderer *renderer;
 };
 
-struct PhysicsComponent : Component
+struct PhysicsComponent : public Component
 {
 	sf::Vector2f acc;
 	sf::Vector2f vel;
