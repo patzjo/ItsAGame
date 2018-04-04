@@ -44,6 +44,10 @@ void World::checkCollisions()
 				continue;
 
 			// TODO(Jonne): Collision messaging here.
+			CollisionData data;
+			data.colliedGameObject = anotherGO;
+			
+			notify(GO, E_START_OVERLAP, &data);
 		}
 	}
 }

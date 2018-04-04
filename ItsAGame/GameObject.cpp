@@ -21,7 +21,7 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 {
 	switch (eventType)
 	{
-	case E_COLLISION:
+	case E_START_OVERLAP:
 		checkCollision(gameObject);
 		break;
 	}
@@ -72,7 +72,11 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 {
 	switch (eventType)
 	{
-	case E_COLLISION:
+	case E_START_OVERLAP:
+		if (this == gameObject)
+		{
+			CollisionData *data = (CollisionData *)eventData;
+		}
 		break;
 
 	default:break;

@@ -5,8 +5,13 @@
 
 
 // Event data casting is made using these types
-enum EVENT_TYPE { E_ERROR, E_COLLISION, E_INPUT, E_DAMAGE_TAKEN };
+enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAKEN };
 
+
+struct CollisionData
+{
+	class GameObject *colliedGameObject;
+};
 
 class Observer
 {
