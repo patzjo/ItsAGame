@@ -25,6 +25,6 @@ private:
 	sf::Texture levelTexture;
 	bool rendererNeedUpdate = true;
 
-	std::vector <Square<float>> hitBoxes;
+	std::vector <Rectangle<float>> hitBoxes;
 };
 

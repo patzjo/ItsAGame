@@ -12,19 +12,21 @@ sf::Vector2f operator*(sf::Vector2f& l, float scalar);
 sf::Vector2f& operator*=(sf::Vector2f& l, float scalar);
 sf::Vector2f operator*(float scalar, sf::Vector2f& r);
 
+
+
 template <typename T>
-struct Square
+struct Rectangle
 {
 	sf::Vector2<T> centerPos;
 	sf::Vector2<T> halfSize;
 
-	Square(const sf::Vector2<T>& CenterPos, const sf::Vector2<T>& HalfSize)
+	Rectangle(const sf::Vector2<T>& CenterPos, const sf::Vector2<T>& HalfSize)
 	{
 		centerPos = CenterPos;
 		halfSize = HalfSize;
 	}
 
-	Square() {
+	Rectangle() {
 		centerPos = { 0, 0 };
 		halfSize = { 0, 0 };
 	}
@@ -43,7 +45,7 @@ struct Square
 			pos.y >= minY;
 	}
 
-	bool boxIntersect(const Square<T>& other)
+	bool boxIntersect(const Rectangle<T>& other)
 	{
 		sf::Vector2f aTL(centerPos.x - halfSize.x, centerPos.y - halfSize.y);
 		sf::Vector2f aBR(centerPos.x + halfSize.x, centerPos.y + halfSize.y);
@@ -64,3 +66,5 @@ struct Square
 };
 
 
+bool collisionBetweenCircleAndRectangle(sf::Vector2f cPointOfSquareObject, Rectangle<float> &l, sf::Vector2f cPointOfCircleObject, float radius);
+bool collisionBetweenCircles(sf::Vector2f c1pos, float c1radius, sf::Vector2f c2pos, float c2radius);

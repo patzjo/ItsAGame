@@ -77,10 +77,12 @@ void Renderer::render()
 	renderLevel();
 	renderGameObjects();
 
+	// Drawing test object
 	sf::CircleShape shape;
 	shape.setRadius(10.0f);
 	shape.setOrigin(10.0f, 10.0f);
 	shape.setFillColor(sf::Color::Red);
+
 	for (RenderComponent *c : renderComponents)
 	{
 		shape.setPosition(c->parent->position);
@@ -92,6 +94,8 @@ void Renderer::render()
 	renderTexts();
 	window.display();
 }
+
+// TEXT RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Renderer::pushText(std::string text, sf::Vector2f pos, int fontID, int characterSize, sf::Color color, bool centered)
 {

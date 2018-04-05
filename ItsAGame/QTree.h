@@ -13,7 +13,7 @@ struct QTreeNodeWrapper
 template <typename T>
 struct QTreeNode
 {
-	Square <float>cell;
+	Rectangle <float>cell;
 	bool inUse = false;
 
 	QTreeNode <T> *topLeft		= nullptr;
@@ -61,7 +61,7 @@ struct QTreeNode
 		w.draw(rect);
 	}
 
-	std::vector <T *> getObjectsInRange(Square<float> area)
+	std::vector <T *> getObjectsInRange(Rectangle<float> area)
 	{
 		std::vector <T *> objectList;
 
@@ -112,7 +112,7 @@ public:
 		//initialize(3, 4, Square<float>({ 960.0f, 540.0f }, { 1920.0f/2.0f, 1080.0f/2.0f }));
 	}
 	
-	bool initialize(int MaxDepth, int NodeCapacity, Square<float> area)
+	bool initialize(int MaxDepth, int NodeCapacity, Rectangle<float> area)
 	{
 		if (nodes)
 			delete[] nodes;
@@ -154,7 +154,7 @@ public:
 			return;
 		}
 
-		Square<float> sq[4];
+		Rectangle<float> sq[4];
 		
 		float childrenHalfSizeX = node->cell.halfSize.x / 2.0f;
 		float childrenHalfSizeY = node->cell.halfSize.y / 2.0f;
@@ -259,7 +259,7 @@ public:
 		_insert(&nodes[0], object);
 		
 	}
-	std::vector <T *> getObjectsInRange(Square<float> area)
+	std::vector <T *> getObjectsInRange(Rectangle<float> area)
 	{
 		return nodes[0].getObjectsInRange(area);
 	}

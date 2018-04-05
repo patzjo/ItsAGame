@@ -10,6 +10,11 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
+	if (renderComponent)
+		delete renderComponent;
+
+	if (physicsComponent)
+		delete physicsComponent;
 }
 
 void GameObject::update( float dT )
@@ -57,15 +62,12 @@ TestObject::TestObject(class Renderer *renderer)
 	physicsComponent = new PhysicsComponent(this);
 
 	physicsComponent->vel = { 100.0f, 100.0f };
+	physicsComponent->collisionMode = CIRCLE_COLLISION;
+	physicsComponent->circleCollisionRadius = 100.0f;
 }
 
 TestObject::~TestObject()
 {
-	if (renderComponent)
-		delete renderComponent;
-
-	if (physicsComponent)
-		delete physicsComponent;
 }
 
 void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventData)

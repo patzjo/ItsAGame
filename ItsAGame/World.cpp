@@ -1,5 +1,7 @@
 #include "Game.h"
 #include "World.h"
+#include "Utils.h"
+
 
 
 
@@ -36,18 +38,36 @@ void World::checkCollisions()
 {
 	for (auto GO : gameObjects)
 	{
-		Square<float> areaToLook = { GO->position, {50.0f, 50.0f} }; // TODO(Jonne): Remember to fix this to bounding box
+		Rectangle<float> areaToLook = { GO->position, {50.0f, 50.0f} }; // TODO(Jonne): Remember to fix this to bounding box
 		std::vector <GameObject *> otherObjects = collisionTree.getObjectsInRange(areaToLook);
 		for (auto anotherGO : otherObjects)
 		{
 			if (GO == anotherGO)
 				continue;
-
-
-			CollisionData data;
-			data.colliedGameObject = anotherGO;
 			
-			notify(GO, E_START_OVERLAP, &data);
+			bool collied = false;
+
+			PhysicsComponent *thisone = GO->getPhysicsComponent();
+			PhysicsComponent *otherone = GO->getPhysicsComponent();
+
+
+			if (thisone->collisionMode == IGNORE_COLLISION || otherone->collisionMode == IGNORE_COLLISION)
+				continue;
+			
+			if (thisone->collisionMode == CIRCLE_COLLISION && otherone->collisionMode == CIRCLE_COLLISION)
+				collied = collisionBetweenCircles(GO->position, thisone->circleCollisionRadius, anotherGO->position, otherone->circleCollisionRadius);
+
+			if (collied)
+			{
+				CollisionData curGOData;
+				CollisionData anotherGOData;
+			
+				curGOData.colliedGameObject = anotherGO;
+				anotherGOData.colliedGameObject = GO;
+
+				notify(GO, E_START_OVERLAP, &curGOData);
+//				notify(anotherGO, E_START_OVERLAP, &anotherGOData);
+			}
 		}
 	}
 }

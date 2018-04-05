@@ -1,8 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Obspat.h"
+#include "Utils.h"
+enum CollisionMode { IGNORE_COLLISION, CIRCLE_COLLISION, BOX_COLLISION };
 
-
+// COMPONENTS ////////////////////////////////////////////////////////////////////////////
 struct Component
 {
 	friend class GameObject;
@@ -17,9 +19,8 @@ struct RenderComponent : public Component
 	float time = 0.0f;
 	float timePerFrame = 0.5f;
 
-	int anim[10]; // Sprite id
-
-	sf::Sprite sprite;
+	int numAnimFrames = 0;
+	int anim[10]; // Sprite ids
 
 	RenderComponent(class GameObject *Parent, class Renderer *rendererPointer);
 	~RenderComponent();
@@ -31,10 +32,19 @@ struct PhysicsComponent : public Component
 	sf::Vector2f acc;
 	sf::Vector2f vel;
 
+	Rectangle<float> collisionArea;
+	float circleCollisionRadius;
+	
+	int collisionMode = BOX_COLLISION;
+
 	void update( float dT );
+	
+	
 	PhysicsComponent(class GameObject *Parent);
 
 };
+
+// GAMEOBJECTS ///////////////////////////////////////////////////////////////////////////////
 
 class GameObject : public Observer
 {
@@ -52,12 +62,18 @@ public:
 
 	void setPosition(sf::Vector2f pos) { position = pos; }
 
+	PhysicsComponent *getPhysicsComponent() { return physicsComponent; }
+	RenderComponent  *getRenderComponent() { return renderComponent;  }
+
 protected:
 	int id;
+
+	RenderComponent  *renderComponent = nullptr;
+	PhysicsComponent *physicsComponent = nullptr;
+
 };
 
-
-
+// PLAYER /////////////////////////////////////////////////////////////////////////////////////
 class Player : public GameObject
 {
 public:
@@ -71,6 +87,8 @@ private:
 	std::string name;
 };
 
+
+// TESTOBJECT ////////////////////////////////////////////////////////////////////////////////
 class TestObject : public GameObject
 {
 public:
@@ -78,7 +96,4 @@ public:
 	~TestObject();
 	void onNotify(GameObject *gameObject, int eventType, void *eventData);
 	void update(float dT);
-protected:
-	RenderComponent  *renderComponent;
-	PhysicsComponent *physicsComponent;
 };
