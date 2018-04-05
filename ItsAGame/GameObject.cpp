@@ -29,7 +29,7 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 
 void Player::checkCollision(GameObject * other) 
 {
-	std::cout << getID() << " Collied With " << other->getID();
+	
 }
 
 
@@ -76,6 +76,7 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		if (this == gameObject)
 		{
 			CollisionData *data = (CollisionData *)eventData;
+			physicsComponent->vel *= -1;
 		}
 		break;
 

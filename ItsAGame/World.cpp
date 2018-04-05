@@ -43,7 +43,7 @@ void World::checkCollisions()
 			if (GO == anotherGO)
 				continue;
 
-			// TODO(Jonne): Collision messaging here.
+
 			CollisionData data;
 			data.colliedGameObject = anotherGO;
 			

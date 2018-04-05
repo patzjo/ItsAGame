@@ -33,6 +33,13 @@ sf::Vector2f operator*(sf::Vector2f& l, float scalar)
 	return result;
 }
 
+sf::Vector2f & operator*=(sf::Vector2f & l, float scalar)
+{
+	l.x *= scalar;
+	l.y *= scalar;
+	return l;
+}
+
 sf::Vector2f operator*(float scalar, sf::Vector2f& r)
 {
 	return r * scalar;

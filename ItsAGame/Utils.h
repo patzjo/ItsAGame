@@ -9,6 +9,7 @@ sf::Vector2f &operator +=(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f operator-(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f &operator -=(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f operator*(sf::Vector2f& l, float scalar);
+sf::Vector2f& operator*=(sf::Vector2f& l, float scalar);
 sf::Vector2f operator*(float scalar, sf::Vector2f& r);
 
 template <typename T>
