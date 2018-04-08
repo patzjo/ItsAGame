@@ -121,11 +121,26 @@ void Level::generateRectangleLevel(int width, int height, int minHeight, int max
 					levelData.setPixel(x, y, fillColor);
 			}
 		}
+		Rectangle<float> hitBox;
+		
+		hitBox.halfSize.x = i / 2.0f;
+		hitBox.halfSize.y = h / 2.0f;
+		
+		hitBox.centerPos.x = curPosition + hitBox.halfSize.x;
+		hitBox.centerPos.y = towerHeight + hitBox.halfSize.y;
+
+		hitBoxes.push_back(hitBox);
+
 		curPosition += i;
 	}
 
 	levelTexture.loadFromImage(levelData);
 	rendererNeedUpdate = true;
+
+	for (auto& i : hitBoxes)
+	{
+		std::cout << "Position:" << i.centerPos << " Size: " << i.halfSize << std::endl;
+	}
 }
 
 void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool centered)
@@ -170,3 +185,11 @@ void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool c
 	levelTexture.loadFromImage(levelData);
 	rendererNeedUpdate = true;
 }
+
+sf::Color Level::getDataFrom(unsigned int x, unsigned int y)
+{
+	if (x >= levelData.getSize().x || y >= levelData.getSize().y)
+		return sf::Color::Black;
+	return levelData.getPixel(x, y);
+}
+

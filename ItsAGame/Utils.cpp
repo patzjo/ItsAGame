@@ -1,22 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Utils.h"
 #include <iostream>
-bool collisionBetweenCircleAndRectangle(sf::Vector2f cPointOfSquareObject, Rectangle<float> &l, sf::Vector2f cPointOfCircleObject, float radius)
-{
-	float circleDistanceX = abs(cPointOfCircleObject.x - cPointOfSquareObject.x);
-	float circleDistanceY = abs(cPointOfCircleObject.y - cPointOfSquareObject.y);
-
-	if (circleDistanceX > (l.halfSize.x + radius)) { return false; }
-	if (circleDistanceY > (l.halfSize.y + radius)) { return false; }
-
-	if (circleDistanceX <= l.halfSize.x) { return true; }
-	if (circleDistanceY <= l.halfSize.y) { return true; }
-
-	float cornerDistance_sq = (circleDistanceX - l.halfSize.x)*(circleDistanceX - l.halfSize.x)
-		+ (circleDistanceY - l.halfSize.y)*(circleDistanceY - l.halfSize.y);
-
-	return (cornerDistance_sq <= (radius*radius));
-}
 
 bool collisionBetweenCircles(sf::Vector2f c1pos, float c1radius, sf::Vector2f c2pos, float c2radius)
 {
@@ -74,4 +58,10 @@ sf::Vector2f & operator*=(sf::Vector2f & l, float scalar)
 sf::Vector2f operator*(float scalar, sf::Vector2f& r)
 {
 	return r * scalar;
+}
+
+std::ostream & operator<<(std::ostream & o, sf::Vector2f & r)
+{
+	o << "(" << r.x << ", " << r.y << ")";
+	return o;
 }

@@ -41,6 +41,8 @@ public:
 	void pushRenderable(struct RenderComponent *renderComponent);
 
 	void removeRenderable(RenderComponent * renderComponent);
+
+	void drawLevelCollisionBoxes();
 	
 	void render();
 private:

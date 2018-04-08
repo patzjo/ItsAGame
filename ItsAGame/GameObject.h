@@ -9,7 +9,7 @@ struct Component
 {
 	friend class GameObject;
 	Component(class GameObject *Parent) { parent = Parent; }
-	class GameObject *parent;
+	class GameObject *parent = nullptr;
 
 	virtual void update() {};
 };
@@ -24,7 +24,7 @@ struct RenderComponent : public Component
 
 	RenderComponent(class GameObject *Parent, class Renderer *rendererPointer);
 	~RenderComponent();
-	class Renderer *renderer;
+	class Renderer *renderer = nullptr;
 };
 
 struct PhysicsComponent : public Component
@@ -36,6 +36,7 @@ struct PhysicsComponent : public Component
 	float circleCollisionRadius;
 	
 	int collisionMode = BOX_COLLISION;
+	Rectangle<float> getCollisionBox();
 
 	void update( float dT );
 	

@@ -18,7 +18,9 @@ public:
 	bool needUpdate()		  { return rendererNeedUpdate; }
 
 	void doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool centered = true);
+	const std::vector <Rectangle<float>>&getLevelCollisionBoxes() { return hitBoxes;  }
 
+	sf::Color getDataFrom(unsigned int x, unsigned int y);
 
 private:
 	sf::Image levelData;

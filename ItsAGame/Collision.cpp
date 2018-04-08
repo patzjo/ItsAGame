@@ -47,3 +47,13 @@ void CollisionQTree::draw(class Renderer *renderer, sf::Color color, float borde
 	}
 }
 
+void CollisionQTree::pushLevelCollisionRectangle(Rectangle<float> rect)
+{
+	levelCollisionBoxes.push_back(rect);
+}
+
+void CollisionQTree::setLevelCollisionBoxes(std::vector<Rectangle<float>> LCB)
+{
+	levelCollisionBoxes = LCB;
+}
+

@@ -70,6 +70,19 @@ void Renderer::removeRenderable(struct RenderComponent *renderComponent)
 	}
 }
 
+void Renderer::drawLevelCollisionBoxes()
+{
+	sf::RectangleShape rect;
+	rect.setFillColor(sf::Color::Red);
+	for (auto& i : level->getLevelCollisionBoxes())
+	{
+		rect.setPosition(i.centerPos.x - i.halfSize.x, i.centerPos.y - i.halfSize.y);
+		rect.setSize(i.halfSize * 2.0f);
+
+		window.draw(rect);
+	}
+}
+
 void Renderer::render()
 {
 	window.clear();
@@ -90,13 +103,12 @@ void Renderer::render()
 	}
 		
 	world->collisionTree.draw(this, sf::Color::Green, 1.0f);
-	
+//	drawLevelCollisionBoxes();
 	renderTexts();
 	window.display();
 }
 
 // TEXT RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Renderer::pushText(std::string text, sf::Vector2f pos, int fontID, int characterSize, sf::Color color, bool centered)
 {
 	RendererTextObject object;

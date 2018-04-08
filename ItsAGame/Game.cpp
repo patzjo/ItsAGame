@@ -99,6 +99,7 @@ void Game::playLoop()
 	{
 		world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
 		status = PLAYING;
+		world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
 	}
 	int frames = 0;
 	int framesPerSec = 0;

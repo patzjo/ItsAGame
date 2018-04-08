@@ -5,7 +5,7 @@
 
 
 // Event data casting is made using these types
-enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAKEN };
+enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAKEN, E_COLLISION_WITH_LEVEL, E_REMOVE_GAMEOBJECT };
 
 
 struct CollisionData
@@ -21,8 +21,8 @@ public:
 	~Observer();
 
 	virtual void onNotify(class GameObject *gameObject, int eventType, void *eventData) = 0;
-private:
-	
+protected:
+	class Subject *subject;
 };
 
 class Subject
@@ -30,8 +30,12 @@ class Subject
 public:
 	void addObserver(Observer *observer)
 	{
+		observer->subject = this;
 		observers.push_back(observer);
 	}
+
+	virtual void notifySubject(int event, void *data) {};
+
 
 	void removeObserver(Observer *observer)
 	{

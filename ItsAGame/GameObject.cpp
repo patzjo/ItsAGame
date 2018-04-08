@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include "GameObject.h"
-
+#include "Level.h"
 #include "Utils.h"
 
 GameObject::GameObject()
@@ -82,6 +82,15 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		}
 		break;
 
+	case E_COLLISION_WITH_LEVEL:
+		if (this == gameObject)
+		{
+			Level *levelPointer = (Level *)eventData;
+			levelPointer->doCircleHole(position, physicsComponent->circleCollisionRadius, sf::Color::Black);
+			subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
+		}
+		break;
+
 	default:break;
 	}
 }
@@ -90,6 +99,15 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 void TestObject::update(float dT)
 {
 	physicsComponent->update(dT);
+}
+
+Rectangle<float> PhysicsComponent::getCollisionBox()
+{
+	Rectangle<float> area;
+	area.halfSize = collisionArea.halfSize;
+	area.centerPos = parent->position;
+
+	return area;
 }
 
 void PhysicsComponent::update(float dT)

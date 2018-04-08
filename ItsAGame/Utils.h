@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <ostream>
 
 sf::Vector2f operator+(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f &operator +=(sf::Vector2f& l, sf::Vector2f& r);
@@ -11,7 +12,7 @@ sf::Vector2f &operator -=(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f operator*(sf::Vector2f& l, float scalar);
 sf::Vector2f& operator*=(sf::Vector2f& l, float scalar);
 sf::Vector2f operator*(float scalar, sf::Vector2f& r);
-
+std::ostream& operator <<(std::ostream& o, sf::Vector2f& r);
 
 
 template <typename T>
@@ -62,6 +63,22 @@ struct Rectangle
 		return true;
 	}
 
+	bool circleIntersect(sf::Vector2f cPointOfCircleObject, float radius)
+	{
+		float distanceX = abs(cPointOfCircleObject.x - centerPos.x);
+		float distanceY = abs(cPointOfCircleObject.y - centerPos.y);
+
+		if (distanceX > (halfSize.x + radius)) { return false; }
+		if (distanceY > (halfSize.y + radius)) { return false; }
+
+		if (distanceX <= halfSize.x) { return true; }
+		if (distanceY <= halfSize.y) { return true; }
+
+		float cornerDistance_sq = (distanceX - halfSize.x)*(distanceX - halfSize.x)
+			+ (distanceY - halfSize.y)*(distanceY - halfSize.y);
+
+		return (cornerDistance_sq <= (radius*radius));
+	}
 
 };
 
