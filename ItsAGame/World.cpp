@@ -6,7 +6,6 @@ World::World()
 {
 }
 
-
 World::~World()
 {
 	for (auto object : gameObjects)
@@ -33,66 +32,85 @@ void World::update(float dT)
 
 void World::checkCollisions()
 {
-	for (auto GO : gameObjects)
+	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) { delete obj; std::cout << "VITTU" << std::endl; } return result; }), gameObjects.end());
+	for(auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++ )
 	{
-		Rectangle<float> areaToLook = { GO->position, {50.0f, 50.0f} }; // TODO(Jonne): Remember to fix this to bounding box
-		std::vector <GameObject *> otherObjects = collisionTree.getObjectsInRange(areaToLook);
-		PhysicsComponent *currentGameObjectPhysicsComponent = GO->getPhysicsComponent();
+		if (!(*itr)->active) continue;
+		GameObject *GO = *itr;
+		CollisionComponent *currentGameObjectCollisionComponent = GO->getCollisionComponent();
 
-		for (auto anotherGO : otherObjects)
+		float areaToLookX = 0.0f;
+		float areaToLookY = 0.0f;
+
+		if (currentGameObjectCollisionComponent->collisionMode == CIRCLE_COLLISION)
 		{
+			areaToLookY = areaToLookX = currentGameObjectCollisionComponent->circleCollisionRadius * 2.5f;
+		}
+		else if (currentGameObjectCollisionComponent->collisionMode == BOX_COLLISION)
+		{
+			areaToLookX = currentGameObjectCollisionComponent->getCollisionBox().halfSize.x*2.5f;
+			areaToLookY = currentGameObjectCollisionComponent->getCollisionBox().halfSize.y*2.5f;
+		}
+
+		// Get objects that are close enought for collision
+		Rectangle<float> areaToLook = { GO->position, {areaToLookX, areaToLookY} }; 
+		std::vector <GameObject *> otherObjects = collisionTree.getObjectsInRange(areaToLook);
+
+		for( auto itr2 = otherObjects.begin(); itr2 != otherObjects.end(); itr2++)
+		{
+			if (!(*itr2)->active) continue;
+
+			GameObject *anotherGO = *itr2;
 			if (GO == anotherGO)
 				continue;
 			
 			bool collied = false;
 
-			PhysicsComponent *anotherGameObjectPhysicsComponent = GO->getPhysicsComponent();
+			CollisionComponent *anotherGameObjectCollisionComponent = GO->getCollisionComponent();
 
-
-			if (currentGameObjectPhysicsComponent->collisionMode == IGNORE_COLLISION || 
-				anotherGameObjectPhysicsComponent->collisionMode == IGNORE_COLLISION)
+			if (currentGameObjectCollisionComponent->collisionMode == IGNORE_COLLISION || 
+				anotherGameObjectCollisionComponent->collisionMode == IGNORE_COLLISION)
 				continue;
 			
-			if (currentGameObjectPhysicsComponent->collisionMode == CIRCLE_COLLISION && anotherGameObjectPhysicsComponent->collisionMode == CIRCLE_COLLISION)
-				collied = collisionBetweenCircles(GO->position, currentGameObjectPhysicsComponent->circleCollisionRadius, anotherGO->position, anotherGameObjectPhysicsComponent->circleCollisionRadius);
-
-			if (currentGameObjectPhysicsComponent->collisionMode == BOX_COLLISION && anotherGameObjectPhysicsComponent->collisionMode == BOX_COLLISION)
-			{
-				collied = currentGameObjectPhysicsComponent->getCollisionBox().boxIntersect(anotherGameObjectPhysicsComponent->getCollisionBox());
-			}
-
-			if (currentGameObjectPhysicsComponent->collisionMode == CIRCLE_COLLISION && anotherGameObjectPhysicsComponent->collisionMode == BOX_COLLISION)
-			{
-				collied = anotherGameObjectPhysicsComponent->getCollisionBox().circleIntersect(GO->position, currentGameObjectPhysicsComponent->circleCollisionRadius);
-			}
-
-			if (currentGameObjectPhysicsComponent->collisionMode == BOX_COLLISION && anotherGameObjectPhysicsComponent->collisionMode == CIRCLE_COLLISION)
-			{
-				collied = currentGameObjectPhysicsComponent->getCollisionBox().circleIntersect(anotherGO->position, anotherGameObjectPhysicsComponent->circleCollisionRadius);
-			}
+			collied = currentGameObjectCollisionComponent->checkCollision(anotherGO);
 
 			if (collied)
 			{
-				CollisionData curGOData;
-				CollisionData anotherGOData;
+				if (!currentGameObjectCollisionComponent->checkOverlapping(anotherGO))
+				{
+					CollisionData curGOData;
+					CollisionData anotherGOData;
 			
-				curGOData.colliedGameObject = anotherGO;
-				anotherGOData.colliedGameObject = GO;
+					curGOData.colliedGameObject = anotherGO;
+					anotherGOData.colliedGameObject = GO;
 
-				notify(GO, E_START_OVERLAP, &curGOData);
-//				notify(anotherGO, E_START_OVERLAP, &anotherGOData);
+					currentGameObjectCollisionComponent->addOverlappingObject(anotherGO);
+
+					notify(GO, E_START_OVERLAP, &curGOData);
+	//				notify(anotherGO, E_START_OVERLAP, &anotherGOData);
+				}
+			}
+			else
+			{
+				if (currentGameObjectCollisionComponent->checkOverlapping(anotherGO))
+				{
+					currentGameObjectCollisionComponent->removeOverlappingObject(anotherGO);
+					notify(GO, E_END_OVERLAP, anotherGO);
+				}
 			}
 		}
 
 	// Collision with level
 
+		if (!(*itr)->active) continue; // If current gameObject is qued for deletion, continue itertion with next object
+
 		auto levelCollisionBoxes = collisionTree.getLevelCollisionBoxes();
-		switch (currentGameObjectPhysicsComponent->collisionMode)
+		switch (currentGameObjectCollisionComponent->collisionMode)
 		{
 		case BOX_COLLISION:
 			for (auto& levelRect : levelCollisionBoxes)
 			{
-				if (currentGameObjectPhysicsComponent->collisionArea.boxIntersect(levelRect) )
+				if (currentGameObjectCollisionComponent->collisionArea.boxIntersect(levelRect) )
 				{
 					if ( level.getDataFrom((unsigned int)GO->position.x, (unsigned int)GO->position.y) != sf::Color::Black )
 						notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
@@ -105,7 +123,7 @@ void World::checkCollisions()
 		case CIRCLE_COLLISION:
 			for (auto& levelRect : levelCollisionBoxes)
 			{
-				if (levelRect.circleIntersect(GO->position, currentGameObjectPhysicsComponent->circleCollisionRadius) )
+				if (levelRect.circleIntersect(GO->position, currentGameObjectCollisionComponent->circleCollisionRadius) )
 				{
 					if ( level.getDataFrom((unsigned int)GO->position.x, (unsigned int)GO->position.y) != sf::Color::Black )
 						notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
@@ -118,8 +136,9 @@ void World::checkCollisions()
 		default: break;
 
 		}
-
 	}
+
+
 }
 
 void World::notifySubject(int event, void *data)
@@ -129,7 +148,8 @@ void World::notifySubject(int event, void *data)
 	case E_REMOVE_GAMEOBJECT:
 	{
 		GameObject * GO = (GameObject*)data;
-		removeObject(GO);
+		notify(nullptr, E_INFORM_GAMEOBJECT_REMOVED, GO);
+		queueToRemove(GO);
 	}
 		break;
 	
@@ -148,18 +168,9 @@ GameObject* World::createObject(sf::Vector2f position, GameObject * object)
 	return object;
 }
 
-void World::removeObject(GameObject * object)
+void World::queueToRemove(GameObject * object)
 {
 	removeObserver(object);
-	
-	for (auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++)
-	{
-		if (*itr == object)
-		{
-			delete *itr;
-			itr = gameObjects.erase(itr);
-			return;
-		}
-	}
-
+	collisionTree.remove(object);
+	object->active = false;
 }

@@ -7,6 +7,9 @@
 #include "Level.h"
 #include "World.h"
 
+#include "Assets.h"
+
+
 
 Renderer::Renderer()
 {
@@ -22,13 +25,16 @@ bool Renderer::initialize(int ScreenWidth, int ScreenHeight, std::string name, b
 	window.create(sf::VideoMode(ScreenWidth, ScreenHeight), name, fullScreen?sf::Style::Fullscreen:sf::Style::Default);
 	window.setVerticalSyncEnabled(vsync);
 
-	addFont("arial.ttf");
+	loadGraphicAssets();
+
 	return false;
 }
 
-void Renderer::addSprite(int id, sf::Sprite* sprite)
+void Renderer::addTexture(std::string filename)
 {
-	sprites[id] = sprite;
+	sf::Texture texture;
+	texture.loadFromFile(filename);
+	textures.push_back(texture);
 }
 
 void Renderer::addFont(std::string filename)
@@ -120,6 +126,25 @@ void Renderer::pushText(std::string text, sf::Vector2f pos, int fontID, int char
 	object.centered = centered;
 
 	textObjects.push_back(object);
+}
+
+void Renderer::loadGraphicAssets()
+{
+	for (unsigned int c = 0; c < sizeof(assets) / sizeof(assets[0]); c++)
+	{
+		switch (assets[c].type)
+		{
+		case FONT:
+			addFont(assets[c].filename);
+			break;
+		case TEXTURE:
+			addTexture(assets[c].filename);
+			break;
+
+		default: break;
+		}
+	}
+
 }
 
 void Renderer::renderTexts()

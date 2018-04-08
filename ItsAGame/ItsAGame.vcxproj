@@ -141,6 +141,7 @@
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assets.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Compat.h" />
     <ClInclude Include="Constants.h" />

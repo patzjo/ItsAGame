@@ -20,7 +20,7 @@ public:
 	void checkCollisions();
 	
 	GameObject *createObject(sf::Vector2f position, GameObject *object);
-	void removeObject(GameObject *object);
+	void queueToRemove(GameObject *object);
 	
 	void notifySubject(int event, void *data);
 

@@ -4,45 +4,60 @@
 #include "Utils.h"
 enum CollisionMode { IGNORE_COLLISION, CIRCLE_COLLISION, BOX_COLLISION };
 
+struct OverlappingWrapper
+{
+	float time;
+	class GameObject *object;
+};
+
+
 // COMPONENTS ////////////////////////////////////////////////////////////////////////////
 struct Component
 {
 	friend class GameObject;
 	Component(class GameObject *Parent) { parent = Parent; }
-	class GameObject *parent = nullptr;
 
+	class GameObject *parent = nullptr;
 	virtual void update() {};
 };
 
 struct RenderComponent : public Component
 {
+	RenderComponent(class GameObject *Parent, class Renderer *rendererPointer);
+	~RenderComponent();
+
 	float time = 0.0f;
 	float timePerFrame = 0.5f;
 
 	int numAnimFrames = 0;
 	int anim[10]; // Sprite ids
-
-	RenderComponent(class GameObject *Parent, class Renderer *rendererPointer);
-	~RenderComponent();
 	class Renderer *renderer = nullptr;
 };
 
 struct PhysicsComponent : public Component
 {
-	sf::Vector2f acc;
-	sf::Vector2f vel;
+	PhysicsComponent(class GameObject *Parent);
 
+	sf::Vector2f acc;
+	virtual void update( float dT );
+};
+
+struct CollisionComponent : public Component
+{
+	CollisionComponent(class GameObject *Parent);
+	
 	Rectangle<float> collisionArea;
 	float circleCollisionRadius;
-	
+
 	int collisionMode = BOX_COLLISION;
 	Rectangle<float> getCollisionBox();
 
-	void update( float dT );
-	
-	
-	PhysicsComponent(class GameObject *Parent);
+	bool checkCollision(class GameObject *object);
 
+	void addOverlappingObject(class GameObject *GO);
+	void removeOverlappingObject(class GameObject *GO);
+	bool checkOverlapping(class GameObject *other);
+	std::vector <OverlappingWrapper> overlappedObjects;
 };
 
 // GAMEOBJECTS ///////////////////////////////////////////////////////////////////////////////
@@ -57,20 +72,26 @@ public:
 	~GameObject();
 
 	sf::Vector2f position;
+	sf::Vector2f vel;
+
+	bool active = true;
+
 	virtual void update(float dT);
 
 	int getID() { return id; };
 
 	void setPosition(sf::Vector2f pos) { position = pos; }
 
-	PhysicsComponent *getPhysicsComponent() { return physicsComponent; }
-	RenderComponent  *getRenderComponent() { return renderComponent;  }
+	PhysicsComponent *getPhysicsComponent()		{ return physicsComponent; }
+	RenderComponent  *getRenderComponent()		{ return renderComponent;  }
+	CollisionComponent *getCollisionComponent() { return collisionComponent; }
 
 protected:
 	int id;
 
-	RenderComponent  *renderComponent = nullptr;
-	PhysicsComponent *physicsComponent = nullptr;
+	RenderComponent    *renderComponent    = nullptr;
+	PhysicsComponent   *physicsComponent   = nullptr;
+	CollisionComponent *collisionComponent = nullptr;
 
 };
 

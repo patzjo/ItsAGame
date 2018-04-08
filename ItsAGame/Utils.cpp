@@ -2,15 +2,16 @@
 #include "Utils.h"
 #include <iostream>
 
-bool collisionBetweenCircles(sf::Vector2f c1pos, float c1radius, sf::Vector2f c2pos, float c2radius)
+bool collisionBetweenCircles(sf::Vector2f c1pos, float c1Radius, sf::Vector2f c2pos, float c2Radius)
 {
 	float rangeX = abs(c2pos.x - c1pos.x);
 	float rangeY = abs(c2pos.y - c1pos.y);
 
-	if ((rangeX*rangeX + rangeY * rangeY) <= c1radius + c2radius)
-	{
+	float squareC1Radius = c1Radius * c1Radius;
+	float squareC2Radius = c2Radius * c2Radius;
+
+	if ((rangeX*rangeX + rangeY*rangeY) <= squareC1Radius + squareC2Radius)
 		return true;
-	}
 
 	return false;
 }
