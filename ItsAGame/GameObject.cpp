@@ -2,8 +2,9 @@
 #include "GameObject.h"
 #include "Level.h"
 #include "Utils.h"
+#include "World.h"
 
-
+// GameObject
 GameObject::GameObject()
 {
 }
@@ -23,30 +24,13 @@ GameObject::~GameObject()
 	collisionComponent = nullptr;
 	physicsComponent = nullptr;
 	renderComponent = nullptr;
-	
-	active = false;
-	std::cout << "Dying!" << std::endl;
 }
 
-void GameObject::update( float dT )
+void GameObject::update(class World *world, float dT )
 {
 	
 }
 
-void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
-{
-	switch (eventType)
-	{
-	case E_START_OVERLAP:
-		checkCollision(gameObject);
-		break;
-	}
-}
-
-void Player::checkCollision(GameObject * other) 
-{
-	
-}
 
 
 // RenderComponent
@@ -70,14 +54,13 @@ PhysicsComponent::PhysicsComponent(class GameObject *Parent)
 
 }
 
-void PhysicsComponent::update(float dT)
+void PhysicsComponent::update(class World *world, float dT)
 {
-	parent->position += parent->vel * dT;
-	if (parent->position.x <= 0.0f || parent->position.x >= 1920)
-		parent->vel.x *= -1;
-
-	if (parent->position.y <= 0 || parent->position.y >= 1080)
-		parent->vel.y *= -1;
+	parent->vel += world->getGravity() * dT;
+	parent->vel += world->getWind() * dT;
+	parent->position += parent->vel;
+	if (parent->position.y > 4000.0f || parent->position.x < -2000.0f || parent->position.x > 10000.0f || parent->position.y < -10000.f)
+		world->queueToRemove(parent);
 }
 
 
@@ -128,6 +111,7 @@ bool CollisionComponent::checkCollision(GameObject *object)
 	return result;
 }
 
+
 void CollisionComponent::addOverlappingObject(GameObject * GO)
 {
 	OverlappingWrapper olw;
@@ -167,9 +151,16 @@ TestObject::TestObject(class Renderer *renderer)
 	physicsComponent = new PhysicsComponent(this);
 	collisionComponent = new CollisionComponent(this);
 
-	vel = { 100.0f, 100.0f };
+	vel = { 0.0f, 0.0f };
 	collisionComponent->collisionMode = CIRCLE_COLLISION;
-	collisionComponent->circleCollisionRadius = 10.0f;
+	float colRad = 10.0f;
+	collisionComponent->circleCollisionRadius = colRad;
+
+	collisionComponent->collisionPoints.push_back({0.0f, 0.0f});		// Center point
+	collisionComponent->collisionPoints.push_back({-colRad, 0.0f });	// Left point
+	collisionComponent->collisionPoints.push_back({ colRad, 0.0f });	// Right point
+	collisionComponent->collisionPoints.push_back({ 0.0f, -colRad });	// Top point
+	collisionComponent->collisionPoints.push_back({ 0.0f, colRad });	// Bottom point
 }
 
 TestObject::~TestObject()
@@ -214,11 +205,29 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 }
 
 
-void TestObject::update(float dT)
+void TestObject::update(class World *world, float dT)
 {
-	physicsComponent->update(dT);
+	physicsComponent->update(world, dT);
 }
 
 
+
+
+// Player
+Player::Player(std::string Name)
+{
+	name = Name;
+
+
+}
+
+void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
+{
+	switch (eventType)
+	{
+	case E_START_OVERLAP:
+		break;
+	}
+}
 
 

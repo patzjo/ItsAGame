@@ -147,6 +147,8 @@ void Game::showFPS(int frameCount)
 	std::string text;
 	text = "FPS: ";
 	text += std::to_string(frameCount);
+	text += " Objects: ";
+	text += std::to_string(world.gameObjects.size());
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
 }
 

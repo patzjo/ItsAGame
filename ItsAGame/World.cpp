@@ -4,6 +4,8 @@
 
 World::World()
 {
+	activeForces.gravity.y = 9.81f / 5.0f;
+	std::cout << "Gravity: " << activeForces.gravity << std::endl;
 }
 
 World::~World()
@@ -18,12 +20,13 @@ World::~World()
 void World::initialize()
 {
 	collisionTree.initialize(5, 4, { { (float)game->options.levelWidth / 2.0f, (float)game->options.levelHeight / 2.0f },{(float)game->options.levelWidth/2.0f, (float)game->options.levelHeight/2.0f} });
+	createObject({ 200.0f, 400.0f }, new Player("P1"));
 }
 
 void World::update(float dT)
 {
 	for (auto go : gameObjects)
-		go->update(dT);
+		go->update(this, dT);
 
 	collisionTree.updateTree();
 
@@ -32,12 +35,14 @@ void World::update(float dT)
 
 void World::checkCollisions()
 {
-	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) { delete obj; std::cout << "VITTU" << std::endl; } return result; }), gameObjects.end());
+	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
 	for(auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++ )
 	{
 		if (!(*itr)->active) continue;
 		GameObject *GO = *itr;
 		CollisionComponent *currentGameObjectCollisionComponent = GO->getCollisionComponent();
+		if (!currentGameObjectCollisionComponent)
+			continue;
 
 		float areaToLookX = 0.0f;
 		float areaToLookY = 0.0f;
@@ -112,9 +117,15 @@ void World::checkCollisions()
 			{
 				if (currentGameObjectCollisionComponent->collisionArea.boxIntersect(levelRect) )
 				{
-					if ( level.getDataFrom((unsigned int)GO->position.x, (unsigned int)GO->position.y) != sf::Color::Black )
-						notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
-					
+					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
+					{
+						sf::Vector2f pointToCheck = point + GO->position;
+						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color::Black)
+						{
+							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
+							break;
+						}
+					}
 					continue;
 				}
 			}
@@ -125,8 +136,15 @@ void World::checkCollisions()
 			{
 				if (levelRect.circleIntersect(GO->position, currentGameObjectCollisionComponent->circleCollisionRadius) )
 				{
-					if ( level.getDataFrom((unsigned int)GO->position.x, (unsigned int)GO->position.y) != sf::Color::Black )
-						notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
+					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
+					{
+						sf::Vector2f pointToCheck = point + GO->position;
+						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color::Black)
+						{
+							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
+							break;
+						}
+					}
 
 					continue;
 				}

@@ -12,10 +12,10 @@ struct AssetInfo
 constexpr AssetInfo assets[]
 {
 // FONTS
-	"arial.ttf", FONT,
+	"arial.ttf", FONT,	// 0
 
 // TEXTURES
-	"tank.jpg",  TEXTURE,
+	"tank1.png",  TEXTURE,	// 0
 
 // SOUNDS
 	
