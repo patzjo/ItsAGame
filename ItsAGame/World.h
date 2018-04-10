@@ -23,7 +23,7 @@ public:
 	void initialize();
 	
 	void update(float dT);
-	void checkCollisions();
+	void checkCollisions(float dT);
 	
 	GameObject *createObject(sf::Vector2f position, GameObject *object);
 	void queueToRemove(GameObject *object);

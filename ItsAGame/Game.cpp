@@ -78,7 +78,7 @@ void Game::processEvents(sf::RenderWindow & window)
 				break;
 			
 			case sf::Keyboard::I:
-				world.createObject((sf::Vector2f)input.getMousePosition(), new TestObject(&renderer));
+				world.createObject((sf::Vector2f)input.getMousePosition(), new TestObject());
 				break;
 
 			case sf::Keyboard::Q:
@@ -112,7 +112,6 @@ void Game::playLoop()
 		processEvents(renderer.getWindow());
 		
 		world.update(deltaTime);
-	
 
 		showFPS(framesPerSec);
 

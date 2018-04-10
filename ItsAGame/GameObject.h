@@ -23,19 +23,17 @@ struct Component
 
 struct RenderComponent : public Component
 {
-	RenderComponent(class GameObject *Parent, class Renderer *rendererPointer);
+	RenderComponent(class GameObject *Parent);
 	~RenderComponent();
+
+	int type = 0; 
 
 	float time = 0.0f;
 	float timePerFrame = 0.5f;
-
 	int numAnimFrames = 0;
-	int anim[10]; 
-	
-	int currentFrame;
-
+	int textureID = 0;
+	int currentFrame=0;
 	class Renderer *renderer = nullptr;
-
 	sf::Sprite sprite;
 };
 
@@ -45,6 +43,12 @@ struct PhysicsComponent : public Component
 
 	sf::Vector2f acc;
 	virtual void update(class World *world, float dT );
+};
+
+struct PlayerPhysicsComponent : public PhysicsComponent
+{
+	PlayerPhysicsComponent(class GameObject *parent) : PhysicsComponent(parent) {};
+	void update(class World *world, float dT);
 };
 
 struct CollisionComponent : public Component
@@ -58,10 +62,14 @@ struct CollisionComponent : public Component
 	Rectangle<float> getCollisionBox();
 
 	bool checkCollision(class GameObject *object);
-
 	void addOverlappingObject(class GameObject *GO);
 	void removeOverlappingObject(class GameObject *GO);
 	bool checkOverlapping(class GameObject *other);
+
+	void addCollisionPoint(sf::Vector2f point);	// Points to check for "better" collision
+	void increaseOverlapTime(class GameObject *GO, float dT);
+
+
 	std::vector <OverlappingWrapper> overlappedObjects;
 	std::vector <sf::Vector2f> collisionPoints;
 };
@@ -88,8 +96,8 @@ public:
 
 	void setPosition(sf::Vector2f pos) { position = pos; }
 
-	PhysicsComponent *getPhysicsComponent()		{ return physicsComponent; }
-	RenderComponent  *getRenderComponent()		{ return renderComponent;  }
+	PhysicsComponent   *getPhysicsComponent()	{ return physicsComponent; }
+	RenderComponent    *getRenderComponent()	{ return renderComponent;  }
 	CollisionComponent *getCollisionComponent() { return collisionComponent; }
 
 protected:
@@ -112,6 +120,11 @@ public:
 	std::string getName() { return name; }
 	void onNotify( GameObject *gameObject, int eventType, void *eventData);
 
+	void update(class World *world, float dT);
+	void handleLevelCollision(class Level *level);
+
+	bool inGround = false;
+
 private:
 	std::string name;
 	int health		= 100;
@@ -123,7 +136,7 @@ private:
 class TestObject : public GameObject
 {
 public:
-	TestObject(class Renderer *renderer);
+	TestObject();
 	~TestObject();
 	void onNotify(GameObject *gameObject, int eventType, void *eventData);
 	void update(class World *world, float dT);

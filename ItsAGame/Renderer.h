@@ -4,6 +4,8 @@
 
 #include <map>
 
+enum RendableType { RENDER_SPRITE, RENDER_SHAPE };
+
 struct RendererTextObject
 {
 	sf::Vector2f pos;
@@ -30,11 +32,11 @@ public:
 	void loadGraphicAssets();
 
 	sf::Font *getFont(int id)		{ return &fonts[id]; }
-	sf::Texture *getTexture(int id) { return &textures[id]; }
+	sf::Texture *getTexture(int id)  { return &textures[id]; }
 	sf::RenderWindow& getWindow()	{ return window; }
 	
 	void renderLevel();
-	void renderGameObjects() {};
+	void renderGameObjects();
 	void renderTexts();
 
 	void setLevelPointer(class Level *lev) { level = lev; }
@@ -42,7 +44,7 @@ public:
 
 	void pushRenderable(struct RenderComponent *renderComponent);
 
-	void removeRenderable(RenderComponent * renderComponent);
+	void removeRenderable(struct RenderComponent * renderComponent);
 
 	void drawLevelCollisionBoxes();
 	

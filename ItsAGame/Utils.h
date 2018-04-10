@@ -46,10 +46,11 @@ struct Rectangle
 			pos.y >= minY;
 	}
 
-	bool boxIntersect(const Rectangle<T>& other)
+	bool boxIntersect(const Rectangle<T>& other, const sf::Vector2f position = { 0.0f, 0.0f })
 	{
-		sf::Vector2f aTL(centerPos.x - halfSize.x, centerPos.y - halfSize.y);
-		sf::Vector2f aBR(centerPos.x + halfSize.x, centerPos.y + halfSize.y);
+		
+		sf::Vector2f aTL(position.x + centerPos.x - halfSize.x, position.y + centerPos.y - halfSize.y);
+		sf::Vector2f aBR(position.x + centerPos.x + halfSize.x, position.y + centerPos.y + halfSize.y);
 
 		sf::Vector2f bTL(other.centerPos.x - other.halfSize.x, other.centerPos.y - other.halfSize.y);
 		sf::Vector2f bBR(other.centerPos.x + other.halfSize.x, other.centerPos.y + other.halfSize.y);

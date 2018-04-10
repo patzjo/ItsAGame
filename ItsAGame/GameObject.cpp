@@ -22,8 +22,8 @@ GameObject::~GameObject()
 		delete collisionComponent;
 
 	collisionComponent = nullptr;
-	physicsComponent = nullptr;
-	renderComponent = nullptr;
+	physicsComponent   = nullptr;
+	renderComponent    = nullptr;
 }
 
 void GameObject::update(class World *world, float dT )
@@ -34,15 +34,13 @@ void GameObject::update(class World *world, float dT )
 
 
 // RenderComponent
-RenderComponent::RenderComponent(GameObject * Parent, Renderer * rendererPointer)
-	: Component(Parent), renderer(rendererPointer)
+RenderComponent::RenderComponent(GameObject * Parent)
+	: Component(Parent)
 {
-	renderer->pushRenderable(this);
 }
 
 RenderComponent::~RenderComponent()
 {
-	renderer->removeRenderable(this);
 }
 
 
@@ -142,12 +140,26 @@ bool CollisionComponent::checkOverlapping(GameObject * other)
 	return false;
 }
 
+void CollisionComponent::addCollisionPoint(sf::Vector2f point)
+{
+	collisionPoints.push_back(point);
+}
+
+void CollisionComponent::increaseOverlapTime(GameObject * GO, float dT)
+{
+	for (auto i : overlappedObjects)
+	{
+		if (i.object == GO)
+			i.time += dT;
+	}
+}
+
 
 
 // TestObject
-TestObject::TestObject(class Renderer *renderer)
+TestObject::TestObject()
 {
-	renderComponent = new RenderComponent(this, renderer);
+	renderComponent = new RenderComponent(this);
 	physicsComponent = new PhysicsComponent(this);
 	collisionComponent = new CollisionComponent(this);
 
@@ -176,7 +188,6 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		case E_START_OVERLAP:
 		{
 				CollisionData *data = (CollisionData *)eventData;
-				vel *= -1;
 		} break;
 
 		case E_COLLISION_WITH_LEVEL:
@@ -211,23 +222,90 @@ void TestObject::update(class World *world, float dT)
 }
 
 
-
-
 // Player
 Player::Player(std::string Name)
 {
 	name = Name;
+	renderComponent = new RenderComponent(this);
+	collisionComponent = new CollisionComponent(this);
+	physicsComponent = new PlayerPhysicsComponent(this);
 
+	renderComponent->type = RENDER_SPRITE;
+	
+	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 0.0f));	 // Center point
 
+	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 25.0f));  // Bottom left
+	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 25.0f));    // bottom Center
+	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 25.0f));   // Bottom right
+
+	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 0.0f));	 // Left
+	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 0.0f));	 // Right
+
+	collisionComponent->collisionMode = BOX_COLLISION;
+	collisionComponent->collisionArea.centerPos = position;
+	collisionComponent->collisionArea.halfSize = { 40.0f, 25.0f };
 }
 
 void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 {
-	switch (eventType)
+	if (gameObject == this)
 	{
-	case E_START_OVERLAP:
-		break;
+		switch (eventType)
+		{
+		case E_START_OVERLAP:
+			break;
+	
+		case E_COLLISION_WITH_LEVEL:
+			// Cant be inside of level, popping gameObject off
+//			if (!inGround)
+//			{
+				handleLevelCollision((Level *)eventData);
+
+//			}
+//			else
+//				inGround = false;
+
+
+			break;
+		}
 	}
 }
 
+void Player::handleLevelCollision(Level *level)
+{
+	for (auto collisionPoint : collisionComponent->collisionPoints)
+	{
+		unsigned int XCheck = (unsigned int)(collisionPoint.x + position.x);
+		unsigned int YCheck = (unsigned int)(collisionPoint.y + position.y);
+		while (level->getDataFrom(XCheck, YCheck) != sf::Color::Black)
+		{
+			inGround = true;
+			position.y--;
+			YCheck = (unsigned int)((int)collisionPoint.y + (int)position.y);
+		} 
+	
+	}
+}
 
+void Player::update(class World *world, float dT)
+{
+	physicsComponent->update(world, dT);
+}
+
+void PlayerPhysicsComponent::update(World * world, float dT)
+{
+	parent->vel += world->getGravity() * dT;
+
+	if (((Player *)parent)->inGround)
+	{
+		if (parent->vel.y > 0.0f)
+			parent->vel.y = (int)0;
+		((Player *)parent)->inGround = false;
+	}
+
+	parent->position += parent->vel;
+
+	if (parent->position.y > 4000.0f || parent->position.x < -2000.0f || parent->position.x > 10000.0f || parent->position.y < -10000.f)
+		world->queueToRemove(parent);
+
+}

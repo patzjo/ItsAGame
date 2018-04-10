@@ -30,12 +30,14 @@ void World::update(float dT)
 
 	collisionTree.updateTree();
 
-	checkCollisions();
+	checkCollisions(dT);
 }
 
-void World::checkCollisions()
+void World::checkCollisions(float dT)
 {
 	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
+	auto levelCollisionBoxes = collisionTree.getLevelCollisionBoxes();
+
 	for(auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++ )
 	{
 		if (!(*itr)->active) continue;
@@ -77,10 +79,13 @@ void World::checkCollisions()
 				anotherGameObjectCollisionComponent->collisionMode == IGNORE_COLLISION)
 				continue;
 			
+			// Check collision
 			collied = currentGameObjectCollisionComponent->checkCollision(anotherGO);
 
+			// Process collision
 			if (collied)
 			{
+				// If object is overlapping with another object
 				if (!currentGameObjectCollisionComponent->checkOverlapping(anotherGO))
 				{
 					CollisionData curGOData;
@@ -92,13 +97,17 @@ void World::checkCollisions()
 					currentGameObjectCollisionComponent->addOverlappingObject(anotherGO);
 
 					notify(GO, E_START_OVERLAP, &curGOData);
-	//				notify(anotherGO, E_START_OVERLAP, &anotherGOData);
 				}
+				else // If object is not overlapping with another object
+					currentGameObjectCollisionComponent->increaseOverlapTime(anotherGO, dT); // Increase time
+
+				GO->vel *= -1;
 			}
-			else
+			else // If not collied, check if they have been overlapped.
 			{
 				if (currentGameObjectCollisionComponent->checkOverlapping(anotherGO))
 				{
+					// Report that that these objects aint overlapping anymore.
 					currentGameObjectCollisionComponent->removeOverlappingObject(anotherGO);
 					notify(GO, E_END_OVERLAP, anotherGO);
 				}
@@ -108,14 +117,12 @@ void World::checkCollisions()
 	// Collision with level
 
 		if (!(*itr)->active) continue; // If current gameObject is qued for deletion, continue itertion with next object
-
-		auto levelCollisionBoxes = collisionTree.getLevelCollisionBoxes();
 		switch (currentGameObjectCollisionComponent->collisionMode)
 		{
 		case BOX_COLLISION:
 			for (auto& levelRect : levelCollisionBoxes)
 			{
-				if (currentGameObjectCollisionComponent->collisionArea.boxIntersect(levelRect) )
+				if (currentGameObjectCollisionComponent->collisionArea.boxIntersect(levelRect, GO->position) )
 				{
 					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
 					{
@@ -182,13 +189,15 @@ GameObject* World::createObject(sf::Vector2f position, GameObject * object)
 	gameObjects.push_back(object);
 	collisionTree.add(object);
 	this->addObserver(object);
-
+	game->renderer.pushRenderable(object->getRenderComponent());
+	
 	return object;
 }
 
 void World::queueToRemove(GameObject * object)
 {
 	removeObserver(object);
+	game->renderer.removeRenderable(object->getRenderComponent());
 	collisionTree.remove(object);
 	object->active = false;
 }

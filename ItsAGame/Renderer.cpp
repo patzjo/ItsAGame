@@ -8,6 +8,7 @@
 #include "World.h"
 
 #include "Assets.h"
+#include "Utils.h"
 
 
 
@@ -59,9 +60,34 @@ void Renderer::renderLevel()
 	}
 }
 
+void Renderer::renderGameObjects()
+{
+	for (auto object : renderComponents)
+	{
+		switch (object->type)
+		{
+		case RENDER_SPRITE:
+
+			object->sprite.setOrigin(object->sprite.getLocalBounds().width*0.5f, object->sprite.getLocalBounds().height*0.5f);
+			object->sprite.setPosition((int)object->parent->position.x, (int)object->parent->position.y);
+			window.draw(object->sprite);
+			break;
+
+		case RENDER_SHAPE:
+			
+			break;
+
+		}
+	}
+}
+
 void Renderer::pushRenderable(struct RenderComponent * renderComponent)
 {
-	renderComponents.push_back(renderComponent);
+	if (renderComponent)
+	{
+		renderComponents.push_back(renderComponent);
+		renderComponent->sprite.setTexture(*getTexture(renderComponent->textureID));
+	}
 }
 
 void Renderer::removeRenderable(struct RenderComponent *renderComponent)
@@ -70,7 +96,7 @@ void Renderer::removeRenderable(struct RenderComponent *renderComponent)
 	{
 		if (*itr == renderComponent)
 		{
-			itr = renderComponents.erase(itr);
+			renderComponents.erase(itr);
 			return;
 		}
 	}
@@ -96,7 +122,9 @@ void Renderer::render()
 	renderLevel();
 	renderGameObjects();
 
+
 	// Drawing test object
+/*
 	sf::CircleShape shape;
 	shape.setRadius(10.0f);
 	shape.setOrigin(10.0f, 10.0f);
@@ -107,9 +135,12 @@ void Renderer::render()
 		shape.setPosition(c->parent->position);
 		window.draw(shape);
 	}
-		
+*/
+
+	// For qTree debug drawing
 	world->collisionTree.draw(this, sf::Color::Green, 1.0f);
 //	drawLevelCollisionBoxes();
+	
 	renderTexts();
 	window.display();
 }
