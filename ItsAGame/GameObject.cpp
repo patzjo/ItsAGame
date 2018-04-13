@@ -157,7 +157,7 @@ void CollisionComponent::increaseOverlapTime(GameObject * GO, float dT)
 
 
 // TestObject
-TestObject::TestObject()
+CannonBall::CannonBall()
 {
 	renderComponent = new RenderComponent(this);
 	physicsComponent = new PhysicsComponent(this);
@@ -173,13 +173,20 @@ TestObject::TestObject()
 	collisionComponent->collisionPoints.push_back({ colRad, 0.0f });	// Right point
 	collisionComponent->collisionPoints.push_back({ 0.0f, -colRad });	// Top point
 	collisionComponent->collisionPoints.push_back({ 0.0f, colRad });	// Bottom point
+
+	renderComponent->radius = colRad;
+	renderComponent->type = RENDER_SHAPE;
+	renderComponent->shape = CIRCLE;
+
+	renderComponent->fillColor = sf::Color::Red;
+	
 }
 
-TestObject::~TestObject()
+CannonBall::~CannonBall()
 {
 }
 
-void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventData)
+void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventData)
 {
 	if (this == gameObject)
 	{
@@ -216,7 +223,7 @@ void TestObject::onNotify(GameObject * gameObject, int eventType, void * eventDa
 }
 
 
-void TestObject::update(class World *world, float dT)
+void CannonBall::update(class World *world, float dT)
 {
 	physicsComponent->update(world, dT);
 }
@@ -256,17 +263,10 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 			break;
 	
 		case E_COLLISION_WITH_LEVEL:
-			// Cant be inside of level, popping gameObject off
-//			if (!inGround)
-//			{
 				handleLevelCollision((Level *)eventData);
-
-//			}
-//			else
-//				inGround = false;
-
-
 			break;
+
+		default: break;
 		}
 	}
 }
@@ -285,6 +285,43 @@ void Player::handleLevelCollision(Level *level)
 		} 
 	
 	}
+}
+
+void Player::shoot(World * world, float dT)
+{
+	CannonBall *newCannonBall = new CannonBall;
+	newCannonBall->setOwner(this);
+
+	float sinAngle = -sinf(toRad(cannonAngle));
+	float cosAngle = cosf(toRad(cannonAngle));
+    
+	
+	newCannonBall->vel = {
+		cosAngle*cannonPower,
+		sinAngle*cannonPower
+	};
+	newCannonBall->position = {
+		position.x + (cosAngle * 30.0f),
+		position.y + (sinAngle * 30.0f)
+	};
+
+	world->createObject(newCannonBall->position, newCannonBall);
+}
+
+void Player::moveCannonAngleUp(float dT)
+{
+	cannonAngle += cannonAngleSpeed * dT;
+
+	if (cannonAngle > 360.0f)
+		cannonAngle = (int)cannonAngle % 360;
+}
+
+void Player::moveCannonAngleDown(float dT)
+{
+	cannonAngle -= cannonAngleSpeed * dT;
+
+	if (cannonAngle < 0)
+		cannonAngle = 360.0f + cannonAngle;
 }
 
 void Player::update(class World *world, float dT)

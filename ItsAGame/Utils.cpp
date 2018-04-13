@@ -66,3 +66,9 @@ std::ostream & operator<<(std::ostream & o, sf::Vector2f & r)
 	o << "(" << r.x << ", " << r.y << ")";
 	return o;
 }
+
+float toRad(float degrees)
+{
+	float radians = degrees * (PI/180.0f);
+	return radians;
+}

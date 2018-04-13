@@ -40,6 +40,6 @@ private:
 
 	CollisionQTree collisionTree;
 
-	WorldForces activeForces;
+	WorldForces activeForces;	// Gravity, wind etc
 };
 

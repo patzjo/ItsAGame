@@ -3,6 +3,7 @@
 #include "Obspat.h"
 #include "Utils.h"
 enum CollisionMode { IGNORE_COLLISION, CIRCLE_COLLISION, BOX_COLLISION };
+enum RenderShape   { CIRCLE, RECTANGLE };
 
 struct OverlappingWrapper
 {
@@ -34,6 +35,15 @@ struct RenderComponent : public Component
 	int textureID = 0;
 	int currentFrame=0;
 	class Renderer *renderer = nullptr;
+	int shape = CIRCLE;
+	sf::Color fillColor;
+	sf::Color outlineColor;
+	float outlineThickness = 1.0f;
+	
+	float radius;
+
+	Rectangle<float> rect;
+
 	sf::Sprite sprite;
 };
 
@@ -95,6 +105,10 @@ public:
 	int getID() { return id; };
 
 	void setPosition(sf::Vector2f pos) { position = pos; }
+	void setOwner(class GameObject *Owner) { owner = Owner; }
+	class GameObject *getOwner() { return owner; }
+
+
 
 	PhysicsComponent   *getPhysicsComponent()	{ return physicsComponent; }
 	RenderComponent    *getRenderComponent()	{ return renderComponent;  }
@@ -106,6 +120,8 @@ protected:
 	RenderComponent    *renderComponent    = nullptr;
 	PhysicsComponent   *physicsComponent   = nullptr;
 	CollisionComponent *collisionComponent = nullptr;
+
+	class GameObject *owner = nullptr; // In case this item is owned by other gameObject.
 
 };
 
@@ -124,20 +140,32 @@ public:
 	void handleLevelCollision(class Level *level);
 
 	bool inGround = false;
+	void shoot(class World *world, float dT);
+
+	void moveCannonAngleUp(float dT);
+	void moveCannonAngleDown(float dT);
+
+	float getCannonAngle() { return cannonAngle; }
 
 private:
 	std::string name;
 	int health		= 100;
 	int fullHealth	= 100;
+
+	float cannonAngle = 0.0f;
+	float cannonPower = 15.0f;
+	float cannonAngleSpeed = 100.0f;
+
+	RenderComponent cannon;
 };
 
 
-// TESTOBJECT ////////////////////////////////////////////////////////////////////////////////
-class TestObject : public GameObject
+// CANNONBALL //////////////////////////////////////////////////////////////////////////////////
+class CannonBall : public GameObject
 {
 public:
-	TestObject();
-	~TestObject();
+	CannonBall();
+	~CannonBall();
 	void onNotify(GameObject *gameObject, int eventType, void *eventData);
 	void update(class World *world, float dT);
 };

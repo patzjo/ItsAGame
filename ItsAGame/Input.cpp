@@ -1,5 +1,13 @@
 #include "Input.h"
+#include "Command.h"
 
-void Input::proceedInput(int key)
+
+
+void Input::processInput()
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	{
+
+	}
+					
 }

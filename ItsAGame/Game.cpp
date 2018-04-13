@@ -6,7 +6,7 @@
 #include "Obspat.h"
 #include "Particles.h"
 #include "Level.h"
-#include "Compat.h"
+#include "Command.h"
 #include "Input.h"
 #include "Game.h"
 
@@ -72,18 +72,45 @@ void Game::processEvents(sf::RenderWindow & window)
 			case sf::Keyboard::Escape:
 				status = QUIT;
 				break;
-
-			case sf::Keyboard::Space:
-				world.level.doCircleHole((sf::Vector2f)input.getMousePosition(), 100, sf::Color::Black);
-				break;
-			
+	
 			case sf::Keyboard::I:
-				world.createObject((sf::Vector2f)input.getMousePosition(), new TestObject());
+				world.createObject((sf::Vector2f)input.getMousePosition(), new CannonBall());
 				break;
 
 			case sf::Keyboard::Q:
 				world.collisionTree.toggleDebug();
 				break;
+
+			case sf::Keyboard::Space:
+			{
+				FireCommand fire;
+
+				fire.execute(this, players[0]);
+			} break;
+
+			case sf::Keyboard::Up:
+			{
+				IncreaseCannonAngle angle;
+				angle.execute(this, players[0]);
+			} break;
+			
+			case sf::Keyboard::Down:
+			{
+				DecreaseCannonAngle angle;
+				angle.execute(this, players[0]);
+			} break;
+
+			case sf::Keyboard::Left:
+			{
+				MoveLeft move;
+				move.execute(this, players[0]);
+			} break;
+			
+			case sf::Keyboard::Right:
+			{
+				MoveRight move;
+				move.execute(this, players[0]);
+			} break;
 
 			default: break;
 			}
@@ -106,9 +133,10 @@ void Game::playLoop()
 	float timeElapsed = 0.0f;
 
 	sf::Clock clock;
+	bool firstFrame = true;
 	while (status == PLAYING)
 	{
-		float deltaTime = clock.restart().asSeconds();
+		deltaTime = clock.restart().asSeconds();
 		processEvents(renderer.getWindow());
 		
 		world.update(deltaTime);
@@ -125,6 +153,17 @@ void Game::playLoop()
 			framesPerSec = frames;
 			frames = 0;
 		}
+
+		if (!firstFrame)
+		{
+			if (deltaTime > deltaTimeMax)
+				deltaTimeMax = deltaTime;
+
+			if (deltaTime < deltaTimeMin)
+				deltaTimeMin = deltaTime;
+		}
+
+		firstFrame = false;
 	}
 
 }
@@ -148,6 +187,13 @@ void Game::showFPS(int frameCount)
 	text += std::to_string(frameCount);
 	text += " Objects: ";
 	text += std::to_string(world.gameObjects.size());
+	text += " DeltaTimeMin: ";
+	text += std::to_string(deltaTimeMin);
+	text += " DeltaTimeMax: ";
+	text += std::to_string(deltaTimeMax);
+
+
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
+
 }
 

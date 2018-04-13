@@ -14,7 +14,7 @@ public:
 	Game();
 	~Game();
 
-	void initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vSync = false, bool fullScreen = false);
+	void initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vSync = true, bool fullScreen = false);
 	void run();
 
 	void exit() { status = QUIT; };
@@ -26,6 +26,9 @@ public:
 	void showFPS(int frameCount);
 	void toggleFPS() { FPSCounter = !FPSCounter; }
 
+	class World *getWorld() { return &world; }
+	float getDeltaTime() { return deltaTime; }
+
 private:
 	struct GameOptions options;
 	class Input input;
@@ -34,6 +37,12 @@ private:
 
 	int status = START_NEW_GAME;
 
+	class Player *players[4];
+	int playerCount = 0;
+
+	float deltaTime = 0.0f;
+	float deltaTimeMin = 1.0f;
+	float deltaTimeMax = 0.0f;
 
 	bool FPSCounter = true;
 };

@@ -4,7 +4,7 @@
 
 World::World()
 {
-	activeForces.gravity.y = 9.81f / 5.0f;
+	activeForces.gravity.y = 9.81f;
 	std::cout << "Gravity: " << activeForces.gravity << std::endl;
 }
 
@@ -20,7 +20,7 @@ World::~World()
 void World::initialize()
 {
 	collisionTree.initialize(5, 4, { { (float)game->options.levelWidth / 2.0f, (float)game->options.levelHeight / 2.0f },{(float)game->options.levelWidth/2.0f, (float)game->options.levelHeight/2.0f} });
-	createObject({ 200.0f, 400.0f }, new Player("P1"));
+	game->players[game->playerCount++] = (Player *)createObject({ 200.0f, 400.0f }, new Player("P1"));
 }
 
 void World::update(float dT)
@@ -68,7 +68,7 @@ void World::checkCollisions(float dT)
 			if (!(*itr2)->active) continue;
 
 			GameObject *anotherGO = *itr2;
-			if (GO == anotherGO)
+			if (GO == anotherGO || GO == anotherGO->getOwner())
 				continue;
 			
 			bool collied = false;
@@ -101,7 +101,6 @@ void World::checkCollisions(float dT)
 				else // If object is not overlapping with another object
 					currentGameObjectCollisionComponent->increaseOverlapTime(anotherGO, dT); // Increase time
 
-				GO->vel *= -1;
 			}
 			else // If not collied, check if they have been overlapped.
 			{

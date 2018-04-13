@@ -74,7 +74,35 @@ void Renderer::renderGameObjects()
 			break;
 
 		case RENDER_SHAPE:
-			
+			switch (object->shape)
+			{
+			case CIRCLE:
+			{
+				sf::CircleShape shape;
+				shape.setFillColor(object->fillColor);
+				shape.setOutlineColor(object->outlineColor);
+				shape.setRadius(object->radius);
+				shape.setOrigin(object->radius, object->radius);
+				shape.setPosition(object->parent->position);
+				window.draw(shape);
+
+			} break;
+
+			case RECTANGLE:
+			{
+				sf::RectangleShape shape;
+				shape.setFillColor(object->fillColor);
+				shape.setOutlineColor(object->outlineColor);
+				shape.setOutlineThickness(object->outlineThickness);
+				shape.setSize(object->rect.halfSize*2.0f);
+				shape.setSize(object->rect.halfSize);
+				shape.setOrigin(object->rect.halfSize);
+				shape.setPosition(object->parent->position);
+
+				window.draw(shape);
+
+			} break;
+			}
 			break;
 
 		}

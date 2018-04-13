@@ -5,6 +5,8 @@
 #include <SFML/Graphics.hpp>
 #include <ostream>
 
+const float PI = 3.14159265359f;
+
 sf::Vector2f operator+(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f &operator +=(sf::Vector2f& l, sf::Vector2f& r);
 sf::Vector2f operator-(sf::Vector2f& l, sf::Vector2f& r);
@@ -13,6 +15,8 @@ sf::Vector2f operator*(sf::Vector2f& l, float scalar);
 sf::Vector2f& operator*=(sf::Vector2f& l, float scalar);
 sf::Vector2f operator*(float scalar, sf::Vector2f& r);
 std::ostream& operator <<(std::ostream& o, sf::Vector2f& r);
+
+float toRad(float degrees);
 
 
 template <typename T>

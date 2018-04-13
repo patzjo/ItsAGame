@@ -23,7 +23,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vsync = false, bool fullScreen = false);
+	bool initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vsync = true, bool fullScreen = false);
 
 	void addTexture(std::string filename);
 	void addFont(std::string filename);
