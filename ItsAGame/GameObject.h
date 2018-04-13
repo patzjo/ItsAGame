@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "Obspat.h"
 #include "Utils.h"
+#include "Command.h"
+
 enum CollisionMode { IGNORE_COLLISION, CIRCLE_COLLISION, BOX_COLLISION };
 enum RenderShape   { CIRCLE, RECTANGLE };
 
@@ -9,6 +11,32 @@ struct OverlappingWrapper
 {
 	float time;
 	class GameObject *object;
+};
+
+struct InputData
+{
+	int key = 0;
+	class Command *command;
+};
+
+struct Graphics
+{
+	int textureID = 0;
+	float angle = 0.0f;
+	int type = 0;
+	bool center = true;
+
+	int shape = CIRCLE;
+	float outlineThickness = 1.0f;
+	float radius;
+	Rectangle<float> rect;
+
+
+	sf::Color fillColor;
+	sf::Color outlineColor;
+	sf::Sprite sprite;
+	sf::Vector2f offset;
+	sf::Vector2f origin;
 };
 
 
@@ -27,24 +55,14 @@ struct RenderComponent : public Component
 	RenderComponent(class GameObject *Parent);
 	~RenderComponent();
 
-	int type = 0; 
-
 	float time = 0.0f;
 	float timePerFrame = 0.5f;
 	int numAnimFrames = 0;
-	int textureID = 0;
+
 	int currentFrame=0;
 	class Renderer *renderer = nullptr;
-	int shape = CIRCLE;
-	sf::Color fillColor;
-	sf::Color outlineColor;
-	float outlineThickness = 1.0f;
-	
-	float radius;
 
-	Rectangle<float> rect;
-
-	sf::Sprite sprite;
+	std::vector <Graphics *> graphics;
 };
 
 struct PhysicsComponent : public Component
@@ -84,8 +102,18 @@ struct CollisionComponent : public Component
 	std::vector <sf::Vector2f> collisionPoints;
 };
 
-// GAMEOBJECTS ///////////////////////////////////////////////////////////////////////////////
+struct InputComponent : public Component
+{
+	~InputComponent();
 
+	InputComponent(class GameObject *Parent);
+	void pushCommand(int Key, class Command *command);
+
+	std::vector <InputData> commands;
+};
+
+
+// GAMEOBJECTS ///////////////////////////////////////////////////////////////////////////////
 class GameObject : public Observer
 {
 	friend struct Component;
@@ -155,8 +183,9 @@ private:
 	float cannonAngle = 0.0f;
 	float cannonPower = 15.0f;
 	float cannonAngleSpeed = 100.0f;
+	Graphics *cannon = nullptr;
 
-	RenderComponent cannon;
+	InputComponent *inputComponent;
 };
 
 

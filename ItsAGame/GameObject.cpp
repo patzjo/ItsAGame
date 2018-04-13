@@ -13,7 +13,11 @@ GameObject::GameObject()
 GameObject::~GameObject()
 {
 	if (renderComponent)
+	{
+		for (auto i : renderComponent->graphics)
+			delete i;
 		delete renderComponent;
+	}
 
 	if (physicsComponent)
 		delete physicsComponent;
@@ -165,7 +169,7 @@ CannonBall::CannonBall()
 
 	vel = { 0.0f, 0.0f };
 	collisionComponent->collisionMode = CIRCLE_COLLISION;
-	float colRad = 10.0f;
+	float colRad = 5.0f;
 	collisionComponent->circleCollisionRadius = colRad;
 
 	collisionComponent->collisionPoints.push_back({0.0f, 0.0f});		// Center point
@@ -174,11 +178,14 @@ CannonBall::CannonBall()
 	collisionComponent->collisionPoints.push_back({ 0.0f, -colRad });	// Top point
 	collisionComponent->collisionPoints.push_back({ 0.0f, colRad });	// Bottom point
 
-	renderComponent->radius = colRad;
-	renderComponent->type = RENDER_SHAPE;
-	renderComponent->shape = CIRCLE;
+	Graphics *graphics = new Graphics;
 
-	renderComponent->fillColor = sf::Color::Red;
+	graphics->radius = colRad;
+	graphics->type = RENDER_SHAPE;
+	graphics->shape = CIRCLE;
+	graphics->fillColor = sf::Color::Red;
+
+	renderComponent->graphics.push_back(graphics);
 	
 }
 
@@ -233,18 +240,40 @@ void CannonBall::update(class World *world, float dT)
 Player::Player(std::string Name)
 {
 	name = Name;
-	renderComponent = new RenderComponent(this);
+	renderComponent =	 new RenderComponent(this);
 	collisionComponent = new CollisionComponent(this);
-	physicsComponent = new PlayerPhysicsComponent(this);
+	physicsComponent =   new PlayerPhysicsComponent(this);
+	inputComponent	   = new InputComponent(this);
 
-	renderComponent->type = RENDER_SPRITE;
-	
+	Graphics *graphics = new Graphics;
+	graphics->type = RENDER_SPRITE;
+	graphics->textureID = 0;
+	renderComponent->graphics.push_back(graphics);
+
+	cannon = new Graphics;
+	cannon->type = RENDER_SHAPE;
+	cannon->shape = RECTANGLE;
+	cannon->rect = { {0.0f, 0.0f}, { 35.0f, 5.0f } };
+	cannon->origin = { 0.0f, cannon->rect.halfSize.y*0.5f };
+	cannon->center = false;
+	cannon->angle = 0.0f;
+	cannon->offset = {8.0f, -15.0f};
+	cannon->fillColor = sf::Color(0, 100, 0);
+	cannon->outlineColor = sf::Color(0, 150, 0);
+	renderComponent->graphics.push_back(cannon);
+
+	Graphics *graphics2 = new Graphics;
+	graphics2->type = RENDER_SHAPE;
+	graphics2->shape = CIRCLE;
+	graphics2->radius = 8.0f;
+	graphics2->offset = cannon->offset;
+	graphics2->fillColor = sf::Color(0, 50, 0);
+	renderComponent->graphics.push_back(graphics2);
+
 	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 0.0f));	 // Center point
-
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 25.0f));  // Bottom left
 	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 25.0f));    // bottom Center
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 25.0f));   // Bottom right
-
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 0.0f));	 // Left
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 0.0f));	 // Right
 
@@ -252,6 +281,7 @@ Player::Player(std::string Name)
 	collisionComponent->collisionArea.centerPos = position;
 	collisionComponent->collisionArea.halfSize = { 40.0f, 25.0f };
 }
+
 
 void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 {
@@ -301,8 +331,8 @@ void Player::shoot(World * world, float dT)
 		sinAngle*cannonPower
 	};
 	newCannonBall->position = {
-		position.x + (cosAngle * 30.0f),
-		position.y + (sinAngle * 30.0f)
+		position.x+cannon->offset.x + (cosAngle * 30.0f),
+		position.y+cannon->offset.y + (sinAngle * 30.0f)
 	};
 
 	world->createObject(newCannonBall->position, newCannonBall);
@@ -314,6 +344,8 @@ void Player::moveCannonAngleUp(float dT)
 
 	if (cannonAngle > 360.0f)
 		cannonAngle = (int)cannonAngle % 360;
+
+	cannon->angle = 360-cannonAngle;
 }
 
 void Player::moveCannonAngleDown(float dT)
@@ -322,6 +354,8 @@ void Player::moveCannonAngleDown(float dT)
 
 	if (cannonAngle < 0)
 		cannonAngle = 360.0f + cannonAngle;
+
+	cannon->angle = 360-cannonAngle;
 }
 
 void Player::update(class World *world, float dT)
@@ -345,4 +379,26 @@ void PlayerPhysicsComponent::update(World * world, float dT)
 	if (parent->position.y > 4000.0f || parent->position.x < -2000.0f || parent->position.x > 10000.0f || parent->position.y < -10000.f)
 		world->queueToRemove(parent);
 
+}
+
+InputComponent::InputComponent(GameObject * Parent) : Component(Parent)
+{
+}
+
+void InputComponent::pushCommand(int Key, class Command * commandToExecute)
+{
+	int key = Key;
+	Command *command = commandToExecute;
+
+	commands.push_back({ key, command });
+}
+
+InputComponent::~InputComponent()
+{
+	for (auto i : commands)
+	{
+		if (i.command)
+			delete i.command;
+
+	}
 }

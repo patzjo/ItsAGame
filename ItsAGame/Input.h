@@ -4,7 +4,7 @@
 class Input
 {
 public:
-	void processInput();
+	void processInput(class GameObject *object);
 	void updateMousePosition(sf::Vector2i pos) { mousePosition = pos; }
 	sf::Vector2i getMousePosition() { return mousePosition; }
 private:

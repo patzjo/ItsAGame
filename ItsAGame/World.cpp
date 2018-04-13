@@ -198,5 +198,14 @@ void World::queueToRemove(GameObject * object)
 	removeObserver(object);
 	game->renderer.removeRenderable(object->getRenderComponent());
 	collisionTree.remove(object);
+
+	/*
+	for ( auto itr = gameObjects.begin(); itr != gameObjects.end(); itr ++)
+		if (*itr == object)
+		{
+			itr = gameObjects.erase(itr);
+			break;
+		}
+		*/
 	object->active = false;
 }

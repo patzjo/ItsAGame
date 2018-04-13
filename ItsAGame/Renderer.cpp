@@ -62,49 +62,63 @@ void Renderer::renderLevel()
 
 void Renderer::renderGameObjects()
 {
-	for (auto object : renderComponents)
+	for (auto component : renderComponents)
 	{
-		switch (object->type)
+		for (auto object : component->graphics)
 		{
-		case RENDER_SPRITE:
-
-			object->sprite.setOrigin(object->sprite.getLocalBounds().width*0.5f, object->sprite.getLocalBounds().height*0.5f);
-			object->sprite.setPosition((int)object->parent->position.x, (int)object->parent->position.y);
-			window.draw(object->sprite);
-			break;
-
-		case RENDER_SHAPE:
-			switch (object->shape)
+			sf::Vector2f position = component->parent->position + object->offset;
+			switch (object->type)
 			{
-			case CIRCLE:
-			{
-				sf::CircleShape shape;
-				shape.setFillColor(object->fillColor);
-				shape.setOutlineColor(object->outlineColor);
-				shape.setRadius(object->radius);
-				shape.setOrigin(object->radius, object->radius);
-				shape.setPosition(object->parent->position);
-				window.draw(shape);
+			case RENDER_SPRITE:
 
-			} break;
+				if (object->center)
+					object->sprite.setOrigin(object->sprite.getLocalBounds().width*0.5f, object->sprite.getLocalBounds().height*0.5f);
+				else
+					object->sprite.setOrigin(object->origin);
 
-			case RECTANGLE:
-			{
-				sf::RectangleShape shape;
-				shape.setFillColor(object->fillColor);
-				shape.setOutlineColor(object->outlineColor);
-				shape.setOutlineThickness(object->outlineThickness);
-				shape.setSize(object->rect.halfSize*2.0f);
-				shape.setSize(object->rect.halfSize);
-				shape.setOrigin(object->rect.halfSize);
-				shape.setPosition(object->parent->position);
+				object->sprite.setRotation(object->angle);
+				object->sprite.setPosition((int)position.x, (int)position.y);
+				window.draw(object->sprite);
+				break;
 
-				window.draw(shape);
+			case RENDER_SHAPE:
+				switch (object->shape)
+				{
+				case CIRCLE:
+				{
+					sf::CircleShape shape;
+					shape.setFillColor(object->fillColor);
+					shape.setOutlineColor(object->outlineColor);
+					shape.setRadius(object->radius);
+					if (object->center)
+						shape.setOrigin(object->radius, object->radius);
+					else
+						shape.setOrigin(object->origin);
+					shape.setPosition((int)position.x, (int)position.y);
+					window.draw(shape);
 
-			} break;
+				} break;
+
+				case RECTANGLE:
+				{
+					sf::RectangleShape shape;
+					shape.setFillColor(object->fillColor);
+					shape.setOutlineColor(object->outlineColor);
+					shape.setOutlineThickness(object->outlineThickness);
+					shape.setSize(object->rect.halfSize*2.0f);
+					shape.setSize(object->rect.halfSize);
+					if (object->center)
+						shape.setOrigin(object->rect.halfSize);
+					else
+						shape.setOrigin(object->origin);
+					shape.setRotation(object->angle);
+					shape.setPosition((int)position.x, (int)position.y);
+
+					window.draw(shape);
+
+				} break;
+				} break;
 			}
-			break;
-
 		}
 	}
 }
@@ -113,8 +127,13 @@ void Renderer::pushRenderable(struct RenderComponent * renderComponent)
 {
 	if (renderComponent)
 	{
+		for (auto piece : renderComponent->graphics)
+		{
+			if ( piece->type == RENDER_SPRITE )
+				piece->sprite.setTexture(*getTexture(piece->textureID));
+		}
+		
 		renderComponents.push_back(renderComponent);
-		renderComponent->sprite.setTexture(*getTexture(renderComponent->textureID));
 	}
 }
 
