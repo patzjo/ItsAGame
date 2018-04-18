@@ -169,24 +169,22 @@ CannonBall::CannonBall()
 
 	vel = { 0.0f, 0.0f };
 	collisionComponent->collisionMode = CIRCLE_COLLISION;
-	float colRad = 5.0f;
-	collisionComponent->circleCollisionRadius = colRad;
 
-	collisionComponent->collisionPoints.push_back({0.0f, 0.0f});		// Center point
-	collisionComponent->collisionPoints.push_back({-colRad, 0.0f });	// Left point
-	collisionComponent->collisionPoints.push_back({ colRad, 0.0f });	// Right point
-	collisionComponent->collisionPoints.push_back({ 0.0f, -colRad });	// Top point
-	collisionComponent->collisionPoints.push_back({ 0.0f, colRad });	// Bottom point
+	collisionComponent->circleCollisionRadius = size;
+	collisionComponent->collisionPoints.push_back({0.0f, 0.0f});	// Center point
+	collisionComponent->collisionPoints.push_back({-size, 0.0f });	// Left point
+	collisionComponent->collisionPoints.push_back({ size, 0.0f });	// Right point
+	collisionComponent->collisionPoints.push_back({ 0.0f, -size});	// Top point
+	collisionComponent->collisionPoints.push_back({ 0.0f, size});	// Bottom point
 
 	Graphics *graphics = new Graphics;
 
-	graphics->radius = colRad;
+	graphics->radius = size;
 	graphics->type = RENDER_SHAPE;
 	graphics->shape = CIRCLE;
 	graphics->fillColor = sf::Color::Red;
 
 	renderComponent->graphics.push_back(graphics);
-	
 }
 
 CannonBall::~CannonBall()
@@ -207,7 +205,7 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		case E_COLLISION_WITH_LEVEL:
 		{
 				Level *levelPointer = (Level *)eventData;
-				levelPointer->doCircleHole(position, 100, sf::Color::Black);
+				levelPointer->doCircleHole(position, explosionRadius, sf::Color::Black);
 				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
 
 		} break;
@@ -319,13 +317,17 @@ void Player::handleLevelCollision(Level *level)
 
 void Player::shoot(World * world, float dT)
 {
+	if (loadingTime < fireRate)
+	{
+		return;
+	}
+	
 	CannonBall *newCannonBall = new CannonBall;
 	newCannonBall->setOwner(this);
 
 	float sinAngle = -sinf(toRad(cannonAngle));
 	float cosAngle = cosf(toRad(cannonAngle));
-    
-	
+    	
 	newCannonBall->vel = {
 		cosAngle*cannonPower,
 		sinAngle*cannonPower
@@ -336,6 +338,7 @@ void Player::shoot(World * world, float dT)
 	};
 
 	world->createObject(newCannonBall->position, newCannonBall);
+	loadingTime = 0.0f;
 }
 
 void Player::moveCannonAngleUp(float dT)
@@ -360,6 +363,8 @@ void Player::moveCannonAngleDown(float dT)
 
 void Player::update(class World *world, float dT)
 {
+	if ( loadingTime < fireRate )
+		loadingTime += dT;
 	physicsComponent->update(world, dT);
 }
 

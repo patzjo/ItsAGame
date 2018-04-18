@@ -39,7 +39,7 @@ public:
 	void renderGameObjects();
 	void renderTexts();
 
-	void setLevelPointer(class Level *lev) { level = lev; }
+	void setLevelPointer(class Level *lev)  { level = lev; }
 	void setWorldPointer(class World *wrld) { world = wrld; }
 
 	void pushRenderable(struct RenderComponent *renderComponent);

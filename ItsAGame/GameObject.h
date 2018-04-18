@@ -183,8 +183,10 @@ private:
 	float cannonAngle = 0.0f;
 	float cannonPower = 15.0f;
 	float cannonAngleSpeed = 100.0f;
-	Graphics *cannon = nullptr;
+	float fireRate    = 1.0f;
+	float loadingTime = 20.0f;
 
+	Graphics *cannon = nullptr;
 	InputComponent *inputComponent;
 };
 
@@ -197,4 +199,8 @@ public:
 	~CannonBall();
 	void onNotify(GameObject *gameObject, int eventType, void *eventData);
 	void update(class World *world, float dT);
+
+private:
+	float explosionRadius = 50.0f;
+	float size = 4;
 };

@@ -72,7 +72,7 @@ void Game::processEvents(sf::RenderWindow & window)
 			case sf::Keyboard::Escape:
 				status = QUIT;
 				break;
-	
+
 			case sf::Keyboard::I:
 				world.createObject((sf::Vector2f)input.getMousePosition(), new CannonBall());
 				break;
@@ -81,42 +81,32 @@ void Game::processEvents(sf::RenderWindow & window)
 				world.collisionTree.toggleDebug();
 				break;
 
-			case sf::Keyboard::Space:
-			{
-				FireCommand fire;
-
-				fire.execute(this, players[0]);
-			} break;
-
-			case sf::Keyboard::Up:
-			{
-				IncreaseCannonAngle angle;
-				angle.execute(this, players[0]);
-			} break;
-			
-			case sf::Keyboard::Down:
-			{
-				DecreaseCannonAngle angle;
-				angle.execute(this, players[0]);
-			} break;
-
-			case sf::Keyboard::Left:
-			{
-				MoveLeft move;
-				move.execute(this, players[0]);
-			} break;
-			
-			case sf::Keyboard::Right:
-			{
-				MoveRight move;
-				move.execute(this, players[0]);
-			} break;
 
 			default: break;
 			}
 		}
-
 	}
+	FireCommand fire;
+	IncreaseCannonAngle angleInc;
+	DecreaseCannonAngle angleDec;
+	MoveLeft moveLeft;
+	MoveRight moveRight;
+
+
+	if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Left) )
+		moveLeft.execute(this, players[0]);
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		moveRight.execute(this, players[0]);
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		fire.execute(this, players[0]);
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		angleInc.execute(this, players[0]);
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		angleDec.execute(this, players[0]);
 
 }
 
