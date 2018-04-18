@@ -366,6 +366,8 @@ void Player::update(class World *world, float dT)
 	if ( loadingTime < fireRate )
 		loadingTime += dT;
 	physicsComponent->update(world, dT);
+	if ( getRenderComponent()->renderer )
+		getRenderComponent()->renderer->pushText(std::to_string(health), position+sf::Vector2f(0.0f, -50.0f), 0, 32, sf::Color::Green, true);
 }
 
 void PlayerPhysicsComponent::update(World * world, float dT)

@@ -169,24 +169,9 @@ void Renderer::render()
 	renderLevel();
 	renderGameObjects();
 
-
-	// Drawing test object
-/*
-	sf::CircleShape shape;
-	shape.setRadius(10.0f);
-	shape.setOrigin(10.0f, 10.0f);
-	shape.setFillColor(sf::Color::Red);
-
-	for (RenderComponent *c : renderComponents)
-	{
-		shape.setPosition(c->parent->position);
-		window.draw(shape);
-	}
-*/
-
 	// For qTree debug drawing
 	world->collisionTree.draw(this, sf::Color::Green, 1.0f);
-//	drawLevelCollisionBoxes();
+	//drawLevelCollisionBoxes();
 	
 	renderTexts();
 	window.display();
