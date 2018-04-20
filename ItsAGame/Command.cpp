@@ -20,10 +20,10 @@ void IncreaseCannonAngle::execute(Game * game, GameObject * gameObject)
 
 void MoveLeft::execute(Game * game, GameObject * gameObject)
 {
-	gameObject->position.x--;
+	gameObject->getPhysicsComponent()->acc.x -= 90.0f;
 }
 
 void MoveRight::execute(Game * game, GameObject * gameObject)
 {
-	gameObject->position.x++;
+	gameObject->getPhysicsComponent()->acc.x += 90.0f;
 }

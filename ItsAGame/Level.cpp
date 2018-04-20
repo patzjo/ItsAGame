@@ -71,7 +71,7 @@ void Level::adjust(std::vector <int>&vec, int width, int height, int minWidth, i
 }
 
 
-void Level::generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor, sf::Color outlineColor)
+void Level::generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor, sf::Color outlineColor, std::string stencilFile)
 {
 	std::random_device generator;
 	
@@ -134,13 +134,12 @@ void Level::generateRectangleLevel(int width, int height, int minHeight, int max
 		curPosition += i;
 	}
 
-	levelTexture.loadFromImage(levelData);
-	rendererNeedUpdate = true;
-
-	for (auto& i : hitBoxes)
+	if (!stencilFile.empty() )
 	{
-		std::cout << "Position:" << i.centerPos << " Size: " << i.halfSize << std::endl;
+		applyStencil(stencilFile, fillColor);
 	}
+	levelTexture.loadFromImage(levelData);
+	updateRenderer();
 }
 
 void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool centered)
@@ -183,7 +182,27 @@ void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool c
 		}
 	}
 	levelTexture.loadFromImage(levelData);
-	rendererNeedUpdate = true;
+	updateRenderer();
+}
+
+void Level::applyStencil(std::string stencilFile, sf::Color color)
+{
+	sf::Image stencilImage;
+	stencilImage.loadFromFile(stencilFile);
+	
+	sf::Vector2u levelSize = levelData.getSize();
+	sf::Vector2u stencilSize = stencilImage.getSize();
+	
+
+	for (int y = levelSize.y-1; y >= 0; y--)
+	{
+		for (int x = 0; x < levelSize.x; x++)
+		{
+			if (levelData.getPixel(x, y) == color)
+				levelData.setPixel(x, y, stencilImage.getPixel(x % stencilSize.x, y % stencilSize.y));
+		}
+	}
+	updateRenderer();
 }
 
 sf::Color Level::getDataFrom(unsigned int x, unsigned int y)

@@ -125,7 +125,7 @@ void World::checkCollisions(float dT)
 				{
 					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
 					{
-						sf::Vector2f pointToCheck = point + GO->position;
+						sf::Vector2f pointToCheck = (point + GO->position);
 						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color::Black)
 						{
 							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);

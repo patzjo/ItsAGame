@@ -77,6 +77,8 @@ struct PlayerPhysicsComponent : public PhysicsComponent
 {
 	PlayerPhysicsComponent(class GameObject *parent) : PhysicsComponent(parent) {};
 	void update(class World *world, float dT);
+
+	sf::Vector2f oldPosition;
 };
 
 struct CollisionComponent : public Component
@@ -172,8 +174,9 @@ public:
 
 	void moveCannonAngleUp(float dT);
 	void moveCannonAngleDown(float dT);
-
 	float getCannonAngle() { return cannonAngle; }
+
+
 
 private:
 	std::string name;

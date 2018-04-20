@@ -10,7 +10,7 @@ public:
 	~Level();
 	void adjust(std::vector<int>& vec, int width, int height, int minWidth, int maxWidth);
 //	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth);
-	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor = sf::Color::White, sf::Color outlineColor = sf::Color::White);
+	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor = sf::Color::White, sf::Color outlineColor = sf::Color::White, std::string stencilFile="high-rise.png");
 
 	std::vector <int> temp;
 	sf::Texture& getTexture() { return levelTexture; }
@@ -19,6 +19,7 @@ public:
 
 	void doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool centered = true);
 	const std::vector <Rectangle<float>>&getLevelCollisionBoxes() { return hitBoxes;  }
+	void applyStencil(std::string stencilFile, sf::Color color);
 
 	sf::Color getDataFrom(unsigned int x, unsigned int y);
 
@@ -28,5 +29,7 @@ private:
 	bool rendererNeedUpdate = true;
 
 	std::vector <Rectangle<float>> hitBoxes;
+
+	void updateRenderer() { rendererNeedUpdate = true; }
 };
 

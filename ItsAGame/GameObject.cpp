@@ -269,9 +269,11 @@ Player::Player(std::string Name)
 	renderComponent->graphics.push_back(graphics2);
 
 	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 0.0f));	 // Center point
+	
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 25.0f));  // Bottom left
 	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 25.0f));    // bottom Center
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 25.0f));   // Bottom right
+	
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 0.0f));	 // Left
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 0.0f));	 // Right
 
@@ -301,26 +303,41 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 
 void Player::handleLevelCollision(Level *level)
 {
+	int point = 0;
+	int biggestClimbAmount = 0;
 	for (auto collisionPoint : collisionComponent->collisionPoints)
 	{
-		unsigned int XCheck = (unsigned int)(collisionPoint.x + position.x);
-		unsigned int YCheck = (unsigned int)(collisionPoint.y + position.y);
+		int climbAmount = 0;
+		unsigned int XCheck = (unsigned int)collisionPoint.x + (unsigned int)position.x;
+		unsigned int YCheck = (unsigned int)collisionPoint.y + (unsigned int)position.y;
+
 		while (level->getDataFrom(XCheck, YCheck) != sf::Color::Black)
 		{
+			climbAmount++;
 			inGround = true;
-			position.y--;
-			YCheck = (unsigned int)((int)collisionPoint.y + (int)position.y);
+			YCheck = (unsigned int)(collisionPoint.y + position.y - climbAmount);
 		} 
-	
+		point++;
+
+		if (climbAmount > biggestClimbAmount)
+			biggestClimbAmount = climbAmount;
 	}
+
+	if (biggestClimbAmount > 20)
+	{
+		position = ((PlayerPhysicsComponent *)getPhysicsComponent())->oldPosition;
+	}
+	else
+	{
+		position.y = position.y - biggestClimbAmount;
+	}
+
 }
 
 void Player::shoot(World * world, float dT)
 {
 	if (loadingTime < fireRate)
-	{
 		return;
-	}
 	
 	CannonBall *newCannonBall = new CannonBall;
 	newCannonBall->setOwner(this);
@@ -372,7 +389,10 @@ void Player::update(class World *world, float dT)
 
 void PlayerPhysicsComponent::update(World * world, float dT)
 {
+	oldPosition = parent->position;
 	parent->vel += world->getGravity() * dT;
+	parent->vel += acc * dT;
+	
 
 	if (((Player *)parent)->inGround)
 	{
@@ -382,6 +402,9 @@ void PlayerPhysicsComponent::update(World * world, float dT)
 	}
 
 	parent->position += parent->vel;
+	parent->vel.x = 0;
+	acc.x = 0;
+	acc.y = 0;
 
 	if (parent->position.y > 4000.0f || parent->position.x < -2000.0f || parent->position.x > 10000.0f || parent->position.y < -10000.f)
 		world->queueToRemove(parent);
