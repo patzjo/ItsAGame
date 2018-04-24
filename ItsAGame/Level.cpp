@@ -135,9 +135,8 @@ void Level::generateRectangleLevel(int width, int height, int minHeight, int max
 	}
 
 	if (!stencilFile.empty() )
-	{
 		applyStencil(stencilFile, fillColor);
-	}
+
 	levelTexture.loadFromImage(levelData);
 	updateRenderer();
 }

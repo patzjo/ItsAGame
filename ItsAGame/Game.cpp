@@ -86,27 +86,8 @@ void Game::processEvents(sf::RenderWindow & window)
 			}
 		}
 	}
-	FireCommand fire;
-	IncreaseCannonAngle angleInc;
-	DecreaseCannonAngle angleDec;
-	MoveLeft moveLeft;
-	MoveRight moveRight;
 
-
-	if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Left) )
-		moveLeft.execute(this, players[0]);
-	
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		moveRight.execute(this, players[0]);
-	
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		fire.execute(this, players[0]);
-	
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		angleInc.execute(this, players[0]);
-	
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		angleDec.execute(this, players[0]);
+	input.processInput(this, players[0]);
 
 }
 
@@ -118,6 +99,7 @@ void Game::playLoop()
 		status = PLAYING;
 		world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
 	}
+
 	int frames = 0;
 	int framesPerSec = 0;
 	float timeElapsed = 0.0f;

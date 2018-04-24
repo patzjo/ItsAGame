@@ -10,7 +10,7 @@ public:
 	~Level();
 	void adjust(std::vector<int>& vec, int width, int height, int minWidth, int maxWidth);
 //	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth);
-	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor = sf::Color::White, sf::Color outlineColor = sf::Color::White, std::string stencilFile="high-rise.png");
+	void generateRectangleLevel(int width, int height, int minHeight, int maxHeight, int minWidth, int maxWidth, sf::Color fillColor = sf::Color::White, sf::Color outlineColor = sf::Color(150, 150, 150), std::string stencilFile="high-rise.png");
 
 	std::vector <int> temp;
 	sf::Texture& getTexture() { return levelTexture; }

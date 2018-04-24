@@ -314,8 +314,8 @@ void Player::handleLevelCollision(Level *level)
 		while (level->getDataFrom(XCheck, YCheck) != sf::Color::Black)
 		{
 			climbAmount++;
-			inGround = true;
 			YCheck = (unsigned int)(collisionPoint.y + position.y - climbAmount);
+			inGround = true;
 		} 
 		point++;
 
@@ -323,14 +323,10 @@ void Player::handleLevelCollision(Level *level)
 			biggestClimbAmount = climbAmount;
 	}
 
-	if (biggestClimbAmount > 20)
-	{
+	if (biggestClimbAmount > 20)	// Do not climb too steep wall
 		position = ((PlayerPhysicsComponent *)getPhysicsComponent())->oldPosition;
-	}
 	else
-	{
 		position.y = position.y - biggestClimbAmount;
-	}
 
 }
 
