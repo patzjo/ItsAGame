@@ -23,33 +23,51 @@ public:
 	Renderer();
 	~Renderer();
 
+	// Initialize renderer
 	bool initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vsync = true, bool fullScreen = false);
 
+	// Adds new texture to renderer
 	void addTexture(std::string filename);
+	// Adds new font to renderer
 	void addFont(std::string filename);
+	
+	// Push text to renderer
 	void pushText(std::string text, sf::Vector2f pos, int fontID, int characterSize, sf::Color color, bool centered = false);
 	
+	// Load Assets.h assets
 	void loadGraphicAssets();
 
+	// Return font from fonts
 	sf::Font *getFont(int id)		{ return &fonts[id]; }
+	// Return texture from textures
 	sf::Texture *getTexture(int id)  { return &textures[id]; }
+	// Return window
 	sf::RenderWindow& getWindow()	{ return window; }
 	
+	// Renders level
 	void renderLevel();
+	// Renders all gameobjects
 	void renderGameObjects();
+	// Renders all texts
 	void renderTexts();
 
+	// Adds pointers to objects
 	void setLevelPointer(class Level *lev)  { level = lev; }
 	void setWorldPointer(class World *wrld) { world = wrld; }
 
+	// Register RenderComponent to renderer
 	void pushRenderable(struct RenderComponent *renderComponent);
 
+	// Remove RenderComponent from renderer
 	void removeRenderable(struct RenderComponent * renderComponent);
 
+	// Debug draw level collisionBoxes.
 	void drawLevelCollisionBoxes();
 	
+	// Render
 	void render();
 
+	// Close renderer
 	void shutDown() { window.close(); }
 
 private:
