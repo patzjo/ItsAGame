@@ -34,16 +34,16 @@ void Game::run()
 	sf::Text text;
 	
 	sf::Clock clock;
-	while (status != GameStatus::QUIT)
+	while (state.getState() != StateEnum::QUIT)
 	{
-		switch (status)
+		switch (state.getState())
 		{
-		case MENU:
+		case StateEnum::MENU:
 			menuLoop();
 			break;
 
-		case PLAYING:
-		case START_NEW_GAME:
+		case StateEnum::PLAYING:
+		case StateEnum::START_NEW_GAME:
 			playLoop();
 			break;
 
@@ -51,7 +51,7 @@ void Game::run()
 		}
 	}
 
-	renderer.getWindow().close();
+	renderer.shutDown();
 }
 
 void Game::processEvents(sf::RenderWindow & window)
@@ -62,7 +62,7 @@ void Game::processEvents(sf::RenderWindow & window)
 	{
 		if (event.type == sf::Event::Closed)
 		{
-			status = QUIT;
+			state.setState(StateEnum::QUIT);
 		}
 
 		if (event.type == sf::Event::KeyReleased)
@@ -70,7 +70,7 @@ void Game::processEvents(sf::RenderWindow & window)
 			switch (event.key.code)
 			{
 			case sf::Keyboard::Escape:
-				status = QUIT;
+				state.setState(StateEnum::QUIT);
 				break;
 
 			case sf::Keyboard::I:
@@ -93,11 +93,12 @@ void Game::processEvents(sf::RenderWindow & window)
 
 void Game::playLoop()
 {
-	if (status == START_NEW_GAME)
+	if (state.getState() == StateEnum::START_NEW_GAME)
 	{
 		world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
-		status = PLAYING;
 		world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
+
+		state.setState(StateEnum::PLAYING);
 	}
 
 	int frames = 0;
@@ -106,7 +107,7 @@ void Game::playLoop()
 
 	sf::Clock clock;
 	bool firstFrame = true;
-	while (status == PLAYING)
+	while (state.getState() == StateEnum::PLAYING)
 	{
 		deltaTime = clock.restart().asSeconds();
 		processEvents(renderer.getWindow());
@@ -142,7 +143,7 @@ void Game::playLoop()
 
 void Game::menuLoop()
 {
-	while (status == MENU)
+	while (state.getState() == StateEnum::MENU)
 	{
 		processEvents(renderer.getWindow());
 		renderer.render();
@@ -157,15 +158,16 @@ void Game::showFPS(int frameCount)
 	std::string text;
 	text = "FPS: ";
 	text += std::to_string(frameCount);
+
 	text += " Objects: ";
 	text += std::to_string(world.gameObjects.size());
+
 	text += " DeltaTimeMin: ";
 	text += std::to_string(deltaTimeMin);
+
 	text += " DeltaTimeMax: ";
 	text += std::to_string(deltaTimeMax);
 
-
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
-
 }
 

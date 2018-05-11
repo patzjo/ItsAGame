@@ -193,15 +193,22 @@ void Renderer::pushText(std::string text, sf::Vector2f pos, int fontID, int char
 
 void Renderer::loadGraphicAssets()
 {
+	std::string fontPath;
+	std::string texturePath;
+
+	fontPath = texturePath = assetsDirectory;
+	fontPath += fontsDirectory;
+	texturePath += texturesDirectory;
+	
 	for (unsigned int c = 0; c < sizeof(assets) / sizeof(assets[0]); c++)
 	{
 		switch (assets[c].type)
 		{
 		case FONT:
-			addFont(assets[c].filename);
+			addFont(fontPath + assets[c].filename);
 			break;
 		case TEXTURE:
-			addTexture(assets[c].filename);
+			addTexture(texturePath + assets[c].filename);
 			break;
 
 		default: break;

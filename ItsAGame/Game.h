@@ -4,8 +4,9 @@
 #include "GameOptions.h"
 #include "Input.h"
 #include "Renderer.h"
+#include "State.h"
 
-enum GameStatus {QUIT, MENU, PLAYING, START_NEW_GAME};
+// enum GameStatus {QUIT, MENU, PLAYING, START_NEW_GAME};
 
 class Game
 {
@@ -17,7 +18,7 @@ public:
 	void initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vSync = true, bool fullScreen = false);
 	void run();
 
-	void exit() { status = QUIT; };
+	void exit() { state.setState(StateEnum::QUIT); }
 	void processEvents(sf::RenderWindow& window);
 
 	void playLoop();
@@ -34,8 +35,8 @@ private:
 	class Input input;
 	class World world;
 	class Renderer renderer;
-
-	int status = START_NEW_GAME;
+	class State state;
+//	int status = START_NEW_GAME;
 
 	class Player *players[4];
 	int playerCount = 0;

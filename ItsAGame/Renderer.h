@@ -50,6 +50,8 @@ public:
 	
 	void render();
 
+	void shutDown() { window.close(); }
+
 private:
 	std::vector <sf::Texture>		       textures;
 	std::vector <sf::Font>			       fonts;

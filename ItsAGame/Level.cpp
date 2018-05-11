@@ -4,6 +4,8 @@
 #include <vector>
 #include <random>
 
+extern const char *assetsDirectory;
+extern const char *stencilsDirectory;
 
 Level::Level()
 {
@@ -187,7 +189,10 @@ void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool c
 void Level::applyStencil(std::string stencilFile, sf::Color color)
 {
 	sf::Image stencilImage;
-	stencilImage.loadFromFile(stencilFile);
+	std::string stencilFilePath = assetsDirectory;
+	stencilFilePath += stencilsDirectory;
+
+	stencilImage.loadFromFile(stencilFilePath + stencilFile);
 	
 	sf::Vector2u levelSize = levelData.getSize();
 	sf::Vector2u stencilSize = stencilImage.getSize();
