@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include "Collision.h"
 #include "Level.h"
 #include "GameObject.h"
@@ -9,6 +10,12 @@ struct WorldForces
 {
 	sf::Vector2f wind;
 	sf::Vector2f gravity;
+};
+
+struct CreationQueue
+{
+	GameObject *object;
+	sf::Vector2f position;
 };
 
 class World : public Subject
@@ -26,8 +33,10 @@ public:
 	void checkCollisions(float dT);
 	
 	GameObject *createObject(sf::Vector2f position, GameObject *object);
+	void queueToCreate(sf::Vector2f position, GameObject *object);
+
 	void queueToRemove(GameObject *object);
-	
+
 	void notifySubject(int event, void *data);
 
 	sf::Vector2f getGravity()	{ return activeForces.gravity; }
@@ -41,5 +50,7 @@ private:
 	CollisionQTree collisionTree;
 
 	WorldForces activeForces;	// Gravity, wind etc
+
+	std::queue <CreationQueue> objectsToCreate;
 };
 

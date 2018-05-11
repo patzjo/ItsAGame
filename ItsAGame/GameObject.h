@@ -35,6 +35,7 @@ struct Graphics
 	sf::Color fillColor;
 	sf::Color outlineColor;
 	sf::Sprite sprite;
+	sf::VertexArray vertices;
 	sf::Vector2f offset;
 	sf::Vector2f origin;
 };
@@ -59,7 +60,12 @@ struct RenderComponent : public Component
 	float timePerFrame = 0.5f;
 	int numAnimFrames = 0;
 
+	float animWidth, animHeight;
+
 	int currentFrame=0;
+
+	bool loop = false;
+
 	class Renderer *renderer = nullptr;
 
 	std::vector <Graphics *> graphics;
@@ -206,4 +212,17 @@ public:
 private:
 	float explosionRadius = 50.0f;
 	float size = 4;
+};
+
+class Explosion : public GameObject
+{
+public:
+	Explosion();
+	~Explosion();
+
+	void onNotify(GameObject *gameObject, int evenType, void *eventData);
+	void update(class World *world, float dT);
+
+private:
+
 };

@@ -81,6 +81,14 @@ void Renderer::renderGameObjects()
 				window.draw(object->sprite);
 				break;
 
+			case RENDER_ANIM:
+			{
+				sf::RenderStates state;
+				state.texture = getTexture(object->textureID);
+				window.draw(object->vertices, state); 
+			}
+				break;
+
 			case RENDER_SHAPE:
 				switch (object->shape)
 				{
@@ -129,8 +137,28 @@ void Renderer::pushRenderable(struct RenderComponent * renderComponent)
 	{
 		for (auto piece : renderComponent->graphics)
 		{
-			if ( piece->type == RENDER_SPRITE )
+			if (piece->type == RENDER_SPRITE)
 				piece->sprite.setTexture(*getTexture(piece->textureID));
+
+			else if (piece->type == RENDER_ANIM)
+			{
+				float tu = renderComponent->currentFrame % (int)(getTexture(piece->textureID)->getSize().x / renderComponent->animWidth);
+				float tv = renderComponent->currentFrame / (int)(getTexture(piece->textureID)->getSize().y / renderComponent->animHeight);
+
+				float halfW = renderComponent->animWidth / 2.0f;
+				float halfH = renderComponent->animHeight / 2.0f;
+
+
+				piece->vertices[0].position = { renderComponent->parent->position.x - halfW, renderComponent->parent->position.y - halfH };
+				piece->vertices[1].position = { renderComponent->parent->position.x + halfW, renderComponent->parent->position.y - halfH };
+				piece->vertices[2].position = { renderComponent->parent->position.x + halfW, renderComponent->parent->position.y + halfH };
+				piece->vertices[3].position = { renderComponent->parent->position.x - halfW, renderComponent->parent->position.y + halfH };
+				
+				piece->vertices[0].texCoords = sf::Vector2f{ tu *     (float)renderComponent->animWidth, tv *		(float)renderComponent->animHeight };
+				piece->vertices[1].texCoords = sf::Vector2f{ (tu+1) * (float)renderComponent->animWidth, tv *		(float)renderComponent->animHeight };
+				piece->vertices[2].texCoords = sf::Vector2f{ (tu+1) * (float)renderComponent->animWidth, (tv+1) *	(float)renderComponent->animHeight };
+				piece->vertices[3].texCoords = sf::Vector2f{ tu *     (float)renderComponent->animWidth, (tv+1) *	(float)renderComponent->animHeight };
+			}
 		}
 		
 		renderComponents.push_back(renderComponent);
@@ -175,6 +203,42 @@ void Renderer::render()
 	
 	renderTexts();
 	window.display();
+}
+
+void Renderer::updateAnimations(float dT)
+{
+	for (auto component : renderComponents)
+	{
+		for (auto object : component->graphics)
+		{
+			if (object->type == RENDER_ANIM)
+			{
+				component->time++;
+				if (component->time > component->timePerFrame)
+				{
+					component->time = 0.0f;
+					component->currentFrame++;
+
+					if (component->currentFrame >= component->numAnimFrames)
+					{
+						if (component->loop)
+							component->currentFrame = 0;
+						else
+							world->notifySubject(E_REMOVE_GAMEOBJECT, (void *)component->parent);
+					}
+					int tu = component->currentFrame % (int)(getTexture(object->textureID)->getSize().x / component->animWidth);
+					int tv = component->currentFrame / (int)(getTexture(object->textureID)->getSize().y / component->animHeight);
+
+
+					object->vertices[0].texCoords = { tu * component->animWidth, tv * component->animHeight };
+					object->vertices[1].texCoords = { (tu + 1) * component->animWidth, tv * component->animHeight };
+					object->vertices[2].texCoords = { (tu + 1) * component->animWidth, (tv + 1) * component->animHeight };
+					object->vertices[3].texCoords = { tu * component->animWidth, (tv + 1) * component->animHeight }; 
+				}
+				
+			}
+		}
+	}
 }
 
 // TEXT RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

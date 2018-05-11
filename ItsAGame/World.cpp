@@ -38,6 +38,12 @@ void World::checkCollisions(float dT)
 	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
 	auto levelCollisionBoxes = collisionTree.getLevelCollisionBoxes();
 
+	while (!objectsToCreate.empty())
+	{
+		createObject(objectsToCreate.front().position, objectsToCreate.front().object);
+		objectsToCreate.pop();
+	}
+
 	for(auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++ )
 	{
 		if (!(*itr)->active) continue;
@@ -183,6 +189,10 @@ void World::notifySubject(int event, void *data)
 		game->sound.playSound(*(int *)data);
 	} break;
 
+	case E_SPAWN_EXPLOSION:
+	{
+		queueToCreate(*(sf::Vector2f *)data, new Explosion());
+	} break;
 	
 
 	default: break;
@@ -217,3 +227,13 @@ void World::queueToRemove(GameObject * object)
 		*/
 	object->active = false;
 }
+
+void World::queueToCreate(sf::Vector2f position, GameObject *object)
+{
+	CreationQueue que;
+
+	que.object = object;
+	que.position = position;
+	objectsToCreate.push(que);
+}
+

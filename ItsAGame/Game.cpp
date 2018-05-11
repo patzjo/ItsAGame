@@ -113,9 +113,9 @@ void Game::playLoop()
 		processEvents(renderer.getWindow());
 		
 		world.update(deltaTime);
-
 		showFPS(framesPerSec);
 
+		renderer.updateAnimations(deltaTime);
 		renderer.render();
 		
 		timeElapsed += deltaTime;

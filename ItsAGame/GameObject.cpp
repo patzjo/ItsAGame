@@ -206,12 +206,12 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		{
 				Level *levelPointer = (Level *)eventData;
 				levelPointer->doCircleHole(position, explosionRadius, sf::Color::Black);
-				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
-				
+				subject->notifySubject(E_SPAWN_EXPLOSION, (void*)&position);
+			
 				int soundIndex = 1;
 				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
 
-				
+				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
 		} break;
 
 		default:break;
@@ -320,6 +320,7 @@ void Player::handleLevelCollision(Level *level)
 		{
 			climbAmount++;
 			YCheck = (unsigned int)(collisionPoint.y + position.y - climbAmount);
+
 			falling = false;
 		}
 		point++;
@@ -350,7 +351,7 @@ void Player::shoot(World * world, float dT)
 		cosAngle*cannonPower,
 		sinAngle*cannonPower
 	};
-	newCannonBall->position = {
+   	newCannonBall->position = {
 		position.x+cannon->offset.x + (cosAngle * 30.0f),
 		position.y+cannon->offset.y + (sinAngle * 30.0f)
 	};
@@ -433,4 +434,37 @@ InputComponent::~InputComponent()
 			delete i.command;
 
 	}
+}
+
+Explosion::Explosion()
+{
+	renderComponent = new RenderComponent(this);
+	Graphics *graphics = new Graphics;
+	
+
+	renderComponent->animHeight = 256;
+	renderComponent->animWidth = 256;
+	renderComponent->currentFrame = 0;
+	renderComponent->numAnimFrames = 64;
+	renderComponent->timePerFrame = 0.25f;
+
+	graphics->type = RENDER_ANIM;
+	graphics->textureID = 1;
+	
+	graphics->vertices.setPrimitiveType(sf::Quads);
+	graphics->vertices.resize(4);
+
+	renderComponent->graphics.push_back(graphics);
+}
+
+Explosion::~Explosion()
+{
+}
+
+void Explosion::onNotify(GameObject * gameObject, int evenType, void * eventData)
+{
+}
+
+void Explosion::update(World * world, float dT)
+{
 }

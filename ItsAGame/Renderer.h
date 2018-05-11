@@ -4,7 +4,7 @@
 
 #include <map>
 
-enum RendableType { RENDER_SPRITE, RENDER_SHAPE };
+enum RendableType { RENDER_SPRITE, RENDER_ANIM, RENDER_SHAPE };
 
 struct RendererTextObject
 {
@@ -69,6 +69,8 @@ public:
 
 	// Close renderer
 	void shutDown() { window.close(); }
+
+	void updateAnimations(float dT);
 
 private:
 	std::vector <sf::Texture>		       textures;
