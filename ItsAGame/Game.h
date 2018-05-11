@@ -5,7 +5,7 @@
 #include "Input.h"
 #include "Renderer.h"
 #include "State.h"
-
+#include "Noise.h"
 // enum GameStatus {QUIT, MENU, PLAYING, START_NEW_GAME};
 
 class Game
@@ -36,7 +36,7 @@ private:
 	class World world;
 	class Renderer renderer;
 	class State state;
-//	int status = START_NEW_GAME;
+	class Noise sound;
 
 	class Player *players[4];
 	int   playerCount = 0;

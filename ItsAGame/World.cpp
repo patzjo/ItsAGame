@@ -119,6 +119,7 @@ void World::checkCollisions(float dT)
 		switch (currentGameObjectCollisionComponent->collisionMode)
 		{
 		case BOX_COLLISION:
+			GO->falling = true;
 			for (auto& levelRect : levelCollisionBoxes)
 			{
 				if (currentGameObjectCollisionComponent->collisionArea.boxIntersect(levelRect, GO->position) )
@@ -138,6 +139,7 @@ void World::checkCollisions(float dT)
 			break;
 		
 		case CIRCLE_COLLISION:
+			GO->falling = true;
 			for (auto& levelRect : levelCollisionBoxes)
 			{
 				if (levelRect.circleIntersect(GO->position, currentGameObjectCollisionComponent->circleCollisionRadius) )
@@ -174,9 +176,15 @@ void World::notifySubject(int event, void *data)
 		GameObject * GO = (GameObject*)data;
 		notify(nullptr, E_INFORM_GAMEOBJECT_REMOVED, GO);
 		queueToRemove(GO);
-	}
-		break;
+	} break;
 	
+	case E_PLAY_SOUND:
+	{
+		game->sound.playSound(*(int *)data);
+	} break;
+
+	
+
 	default: break;
 	}
 }

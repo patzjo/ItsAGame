@@ -143,7 +143,7 @@ public:
 	PhysicsComponent   *getPhysicsComponent()	{ return physicsComponent; }
 	RenderComponent    *getRenderComponent()	{ return renderComponent;  }
 	CollisionComponent *getCollisionComponent() { return collisionComponent; }
-
+	bool falling = true;
 protected:
 	int id;
 
@@ -169,7 +169,7 @@ public:
 	void update(class World *world, float dT);
 	void handleLevelCollision(class Level *level);
 
-	bool inGround = false;
+//	bool falling = true;
 	void shoot(class World *world, float dT);
 
 	void moveCannonAngleUp(float dT);

@@ -207,7 +207,11 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 				Level *levelPointer = (Level *)eventData;
 				levelPointer->doCircleHole(position, explosionRadius, sf::Color::Black);
 				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
+				
+				int soundIndex = 1;
+				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
 
+				
 		} break;
 
 		default:break;
@@ -296,7 +300,8 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 				handleLevelCollision((Level *)eventData);
 			break;
 
-		default: break;
+		default: 
+			break;
 		}
 	}
 }
@@ -315,8 +320,8 @@ void Player::handleLevelCollision(Level *level)
 		{
 			climbAmount++;
 			YCheck = (unsigned int)(collisionPoint.y + position.y - climbAmount);
-			inGround = true;
-		} 
+			falling = false;
+		}
 		point++;
 
 		if (climbAmount > biggestClimbAmount)
@@ -352,6 +357,8 @@ void Player::shoot(World * world, float dT)
 
 	world->createObject(newCannonBall->position, newCannonBall);
 	loadingTime = 0.0f;
+	int soundIndex = 0;
+	world->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
 }
 
 void Player::moveCannonAngleUp(float dT)
@@ -390,13 +397,12 @@ void PlayerPhysicsComponent::update(World * world, float dT)
 	parent->vel += acc * dT;
 	
 
-	if (((Player *)parent)->inGround)
+	if (!parent->falling)
 	{
-		if (parent->vel.y > 0.0f)
-			parent->vel.y = (int)0;
-		((Player *)parent)->inGround = false;
+		if (parent->vel.y > 1.0f)
+			parent->vel.y = (int)1;
 	}
-
+	
 	parent->position += parent->vel;
 	parent->vel.x = 0;
 	acc.x = 0;
@@ -415,7 +421,7 @@ void InputComponent::pushCommand(int Key, class Command * commandToExecute)
 {
 	int key = Key;
 	Command *command = commandToExecute;
-
+	
 	commands.push_back({ key, command });
 }
 

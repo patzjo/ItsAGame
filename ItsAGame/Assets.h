@@ -19,16 +19,17 @@ struct AssetInfo
 
 const struct AssetInfo assets[]
 {
+//  FILENAME            TYPE        INDEX NUMBER
 // FONTS
-	"arial.ttf",		FONT,		// start index 0
+	"arial.ttf",		FONT,		// 0
 
 // TEXTURES
-	"tank1.png",		TEXTURE,	// start index 0 
+	"tank1.png",		TEXTURE,	// 0
 
 // SOUNDS
-	"explode.wav",		SOUND,		// start index 0
-	"explodemini.wav",	SOUND, 
+	"explodemini.wav",	SOUND,		// 0 
+	"explode.wav",		SOUND,		// 1
 
 // MUSICS
-
+	"rauha.wav",		MUSIC,		// 0
 };

@@ -2,14 +2,13 @@
 #include "World.h"
 #include "GameObject.h"
 #include "Renderer.h"
-#include "Sound.h"
+#include "Noise.h"
 #include "Obspat.h"
 #include "Particles.h"
 #include "Level.h"
 #include "Command.h"
 #include "Input.h"
 #include "Game.h"
-
 Game::Game()
 {
 }
@@ -27,6 +26,7 @@ void Game::initialize(int ScreenWidth, int ScreenHeight, std::string name, bool 
 	renderer.setLevelPointer(&world.level);
 
 	world.initialize();
+	sound.initialize();
 }
 
 void Game::run()
@@ -167,6 +167,9 @@ void Game::showFPS(int frameCount)
 
 	text += " DeltaTimeMax: ";
 	text += std::to_string(deltaTimeMax);
+
+	text += " Falling: ";
+	text += players[0]->falling ? "Yes" : "No";
 
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
 }
