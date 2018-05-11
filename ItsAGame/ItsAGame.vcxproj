@@ -138,6 +138,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Assets.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="State.h" />
     <ClCompile Include="Utils.cpp" />

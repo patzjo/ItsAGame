@@ -4,12 +4,12 @@
 
 enum AssetType {FONT, TEXTURE, SOUND, MUSIC};
 
-const char *assetsDirectory		= "Assets/";
-const char *fontsDirectory		= "Fonts/";
-const char *texturesDirectory	= "Textures/";
-const char *soundsDirectory		= "Sounds/";
-const char *musicsDirectory		= "Musics/";
-const char *stencilsDirectory	= "Stencils/";
+extern const char *assetsDirectory;
+extern const char *fontsDirectory;
+extern const char *texturesDirectory;
+extern const char *soundsDirectory;
+extern const char *musicsDirectory;
+extern const char *stencilsDirectory;
 
 struct AssetInfo
 {
@@ -17,7 +17,7 @@ struct AssetInfo
 	int type;
 };
 
-constexpr AssetInfo assets[]
+const struct AssetInfo assets[]
 {
 // FONTS
 	"arial.ttf",		FONT,		// start index 0
@@ -26,7 +26,8 @@ constexpr AssetInfo assets[]
 	"tank1.png",		TEXTURE,	// start index 0 
 
 // SOUNDS
-	"sound.wav",		SOUND		// start index 0
+	"explode.wav",		SOUND,		// start index 0
+	"explodemini.wav",	SOUND, 
 
 // MUSICS
 

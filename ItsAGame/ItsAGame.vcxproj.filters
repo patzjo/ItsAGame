@@ -60,6 +60,9 @@
     <ClCompile Include="State.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Assets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Obspat.h">

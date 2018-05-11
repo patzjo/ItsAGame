@@ -9,8 +9,14 @@ public:
 
 	bool initialize();
 
+	void playMusic(int index);
+	void playSound(int index);
+
 private:
-	sf::Sound sfx;
+	std::vector <sf::SoundBuffer> sfxs;
+	std::vector <sf::SoundBuffer> musics;
+
+	sf::Sound channel[32];
 	sf::Music music;
 };
 

@@ -39,7 +39,7 @@ private:
 //	int status = START_NEW_GAME;
 
 	class Player *players[4];
-	int playerCount = 0;
+	int   playerCount = 0;
 
 	float deltaTime = 0.0f;
 	float deltaTimeMin = 1.0f;
