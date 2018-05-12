@@ -21,6 +21,7 @@ void World::initialize()
 {
 	collisionTree.initialize(5, 4, { { (float)game->options.levelWidth / 2.0f, (float)game->options.levelHeight / 2.0f },{(float)game->options.levelWidth/2.0f, (float)game->options.levelHeight/2.0f} });
 	game->players[game->playerCount++] = (Player *)createObject({ 200.0f, 400.0f }, new Player("P1"));
+	game->players[game->playerCount++] = (Player *)createObject({ 900.0f, 400.0f }, new Player("P2"));
 }
 
 void World::update(float dT)

@@ -284,6 +284,13 @@ Player::Player(std::string Name)
 	collisionComponent->collisionMode = BOX_COLLISION;
 	collisionComponent->collisionArea.centerPos = position;
 	collisionComponent->collisionArea.halfSize = { 40.0f, 25.0f };
+
+	inputComponent->pushCommand(sf::Keyboard::Left, new MoveLeft);
+	inputComponent->pushCommand(sf::Keyboard::Right, new MoveRight);
+	inputComponent->pushCommand(sf::Keyboard::Space, new FireCommand);
+	inputComponent->pushCommand(sf::Keyboard::Up, new IncreaseCannonAngle);
+	inputComponent->pushCommand(sf::Keyboard::Down, new DecreaseCannonAngle);
+
 }
 
 
@@ -418,12 +425,9 @@ InputComponent::InputComponent(GameObject * Parent) : Component(Parent)
 {
 }
 
-void InputComponent::pushCommand(int Key, class Command * commandToExecute)
+void InputComponent::pushCommand(sf::Keyboard::Key Key, class Command * commandToExecute)
 {
-	int key = Key;
-	Command *command = commandToExecute;
-	
-	commands.push_back({ key, command });
+	commands.push_back({ Key, commandToExecute });
 }
 
 InputComponent::~InputComponent()

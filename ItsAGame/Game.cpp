@@ -87,7 +87,8 @@ void Game::processEvents(sf::RenderWindow & window)
 		}
 	}
 
-	input.processInput(this, players[0]);
+	for (unsigned int c = 0; c < playerCount; c++ )
+		input.processInput(this, players[c]);
 
 }
 

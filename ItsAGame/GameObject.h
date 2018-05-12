@@ -15,7 +15,7 @@ struct OverlappingWrapper
 
 struct InputData
 {
-	int key = 0;
+	sf::Keyboard::Key key;
 	class Command *command;
 };
 
@@ -115,7 +115,7 @@ struct InputComponent : public Component
 	~InputComponent();
 
 	InputComponent(class GameObject *Parent);
-	void pushCommand(int Key, class Command *command);
+	void pushCommand(sf::Keyboard::Key Key, class Command *command);
 
 	std::vector <InputData> commands;
 };
@@ -182,6 +182,7 @@ public:
 	void moveCannonAngleDown(float dT);
 	float getCannonAngle() { return cannonAngle; }
 
+	InputComponent *getInputComponent() { return inputComponent; }
 
 
 private:

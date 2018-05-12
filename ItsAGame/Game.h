@@ -6,7 +6,6 @@
 #include "Renderer.h"
 #include "State.h"
 #include "Noise.h"
-// enum GameStatus {QUIT, MENU, PLAYING, START_NEW_GAME};
 
 class Game
 {
