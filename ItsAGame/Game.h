@@ -28,6 +28,10 @@ public:
 
 	class World *getWorld() { return &world; }
 	float getDeltaTime() { return deltaTime; }
+	int getPlayerCount() { return playerCount;  }
+
+	class Player *getPlayer(int index) { return players[index]; }
+	struct GameOptions *getOptions() { return &options; }
 
 private:
 	struct GameOptions options;

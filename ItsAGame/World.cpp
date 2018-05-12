@@ -20,8 +20,14 @@ World::~World()
 void World::initialize()
 {
 	collisionTree.initialize(5, 4, { { (float)game->options.levelWidth / 2.0f, (float)game->options.levelHeight / 2.0f },{(float)game->options.levelWidth/2.0f, (float)game->options.levelHeight/2.0f} });
-	game->players[game->playerCount++] = (Player *)createObject({ 200.0f, 400.0f }, new Player("P1"));
-	game->players[game->playerCount++] = (Player *)createObject({ 900.0f, 400.0f }, new Player("P2"));
+	
+	for (int c = 0; c < game->options.players; c++)
+	{
+		std::string name = "P";
+		name += std::to_string(c);
+		game->players[game->playerCount++] = (Player *)createObject({ 200.0f*(c+1), 400.0f }, new Player(name));
+	}
+	game->input.setKeysFromOptions(game);
 }
 
 void World::update(float dT)

@@ -168,10 +168,10 @@ void Game::showFPS(int frameCount)
 
 	text += " DeltaTimeMax: ";
 	text += std::to_string(deltaTimeMax);
-
+/*
 	text += " Falling: ";
 	text += players[0]->falling ? "Yes" : "No";
-
+*/
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
 }
 
