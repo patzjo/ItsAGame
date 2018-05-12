@@ -44,6 +44,10 @@ public:
 	// Return window
 	sf::RenderWindow& getWindow()	{ return window; }
 	
+	void createBackground(int startTexture, int endTexture);
+
+	// Render background
+	void renderBackground();
 	// Renders level
 	void renderLevel();
 	// Renders all gameobjects
@@ -63,7 +67,8 @@ public:
 
 	// Debug draw level collisionBoxes.
 	void drawLevelCollisionBoxes();
-	
+	void drawCollisionVolumes();
+
 	// Render
 	void render();
 
@@ -71,6 +76,8 @@ public:
 	void shutDown() { window.close(); }
 
 	void updateAnimations(float dT);
+
+
 
 private:
 	std::vector <sf::Texture>		       textures;
@@ -80,6 +87,7 @@ private:
 	std::vector <struct RenderComponent *> renderComponents;
 
 	sf::Sprite levelSprite;
+	sf::Sprite backgroundSprite;
 	sf::RenderWindow window;
 
 	class Level *level = nullptr;

@@ -20,12 +20,26 @@ World::~World()
 void World::initialize()
 {
 	collisionTree.initialize(5, 4, { { (float)game->options.levelWidth / 2.0f, (float)game->options.levelHeight / 2.0f },{(float)game->options.levelWidth/2.0f, (float)game->options.levelHeight/2.0f} });
-	
+}
+
+void World::startAgain()
+{
+	float xPos = 200.0f;
+	game->playerCount = 0;
 	for (int c = 0; c < game->options.players; c++)
 	{
+		if (game->players[c]) delete game->players[c];
+
 		std::string name = "P";
-		name += std::to_string(c);
-		game->players[game->playerCount++] = (Player *)createObject({ 200.0f*(c+1), 400.0f }, new Player(name));
+		name += std::to_string(c + 1);
+		if ((c % 2) == 0)
+			game->players[game->playerCount++] = (Player *)createObject({ 1920 - xPos, 400.0f }, new Player(name));
+		else
+		{
+			game->players[game->playerCount++] = (Player *)createObject({ xPos, 400.0f }, new Player(name));
+			xPos = 200.0f*(c - 1);
+		}
+
 	}
 	game->input.setKeysFromOptions(game);
 }
@@ -42,14 +56,7 @@ void World::update(float dT)
 
 void World::checkCollisions(float dT)
 {
-	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
 	auto levelCollisionBoxes = collisionTree.getLevelCollisionBoxes();
-
-	while (!objectsToCreate.empty())
-	{
-		createObject(objectsToCreate.front().position, objectsToCreate.front().object);
-		objectsToCreate.pop();
-	}
 
 	for(auto itr = gameObjects.begin(); itr != gameObjects.end(); itr++ )
 	{
@@ -64,12 +71,12 @@ void World::checkCollisions(float dT)
 
 		if (currentGameObjectCollisionComponent->collisionMode == CIRCLE_COLLISION)
 		{
-			areaToLookY = areaToLookX = currentGameObjectCollisionComponent->circleCollisionRadius * 2.5f;
+			areaToLookY = areaToLookX = currentGameObjectCollisionComponent->circleCollisionRadius * 5.0f;
 		}
 		else if (currentGameObjectCollisionComponent->collisionMode == BOX_COLLISION)
 		{
-			areaToLookX = currentGameObjectCollisionComponent->getCollisionBox().halfSize.x*2.5f;
-			areaToLookY = currentGameObjectCollisionComponent->getCollisionBox().halfSize.y*2.5f;
+			areaToLookX = currentGameObjectCollisionComponent->getCollisionBox().halfSize.x*5.0f;
+			areaToLookY = currentGameObjectCollisionComponent->getCollisionBox().halfSize.y*5.0f;
 		}
 
 		// Get objects that are close enought for collision
@@ -140,7 +147,7 @@ void World::checkCollisions(float dT)
 					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
 					{
 						sf::Vector2f pointToCheck = (point + GO->position);
-						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color::Black)
+						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color(0,0,0,0))
 						{
 							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
 							break;
@@ -160,7 +167,7 @@ void World::checkCollisions(float dT)
 					for (auto& point : currentGameObjectCollisionComponent->collisionPoints)
 					{
 						sf::Vector2f pointToCheck = point + GO->position;
-						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color::Black)
+						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color(0, 0, 0, 0))
 						{
 							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
 							break;
@@ -191,6 +198,21 @@ void World::notifySubject(int event, void *data)
 		queueToRemove(GO);
 	} break;
 	
+	case E_REMOVE_PLAYER:
+	{
+		Player *player = (Player *)data;
+		for (unsigned int c = 0; c < game->getPlayerCount(); c++)
+		{
+			if (game->players[c] == player)
+			{
+				std::cout << "Removing da playa" << std::endl;
+				notify(nullptr, E_INFORM_GAMEOBJECT_REMOVED, (GameObject*)data);
+				queueToRemove((GameObject*)data);
+				game->players[c] = nullptr;
+			}
+		}
+	}break;
+
 	case E_PLAY_SOUND:
 	{
 		game->sound.playSound(*(int *)data);
@@ -201,6 +223,20 @@ void World::notifySubject(int event, void *data)
 		queueToCreate(*(sf::Vector2f *)data, new Explosion());
 	} break;
 	
+	case E_START_AGAIN:
+	{
+		for (unsigned int c = 0; c < gameObjects.size(); c++)
+			switch (gameObjects[c]->getType())
+			{
+			case PLAYER:
+				notifySubject(E_REMOVE_PLAYER, gameObjects[c]);
+				break;
+			
+			default:
+				notifySubject(E_REMOVE_GAMEOBJECT, gameObjects[c]);
+				break;
+			}
+	} break;
 
 	default: break;
 	}
@@ -242,5 +278,17 @@ void World::queueToCreate(sf::Vector2f position, GameObject *object)
 	que.object = object;
 	que.position = position;
 	objectsToCreate.push(que);
+}
+
+void World::processQueues()
+{
+	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
+
+																																																// Create queuedObjects
+	while (!objectsToCreate.empty())
+	{
+		createObject(objectsToCreate.front().position, objectsToCreate.front().object);
+		objectsToCreate.pop();
+	}
 }
 

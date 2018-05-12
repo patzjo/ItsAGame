@@ -81,6 +81,9 @@ void Game::processEvents(sf::RenderWindow & window)
 				world.collisionTree.toggleDebug();
 				break;
 
+			case sf::Keyboard::F1:
+				state.setState(StateEnum::START_NEW_GAME);
+				break;
 
 			default: break;
 			}
@@ -96,9 +99,10 @@ void Game::playLoop()
 {
 	if (state.getState() == StateEnum::START_NEW_GAME)
 	{
+		world.notifySubject(E_START_AGAIN, 0);
 		world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
 		world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
-
+		world.startAgain();
 		state.setState(StateEnum::PLAYING);
 	}
 
@@ -119,6 +123,7 @@ void Game::playLoop()
 		renderer.updateAnimations(deltaTime);
 		renderer.render();
 		
+		world.processQueues();
 		timeElapsed += deltaTime;
 		frames++;
 		if (timeElapsed >= 1.0)
@@ -137,6 +142,7 @@ void Game::playLoop()
 				deltaTimeMin = deltaTime;
 		}
 
+		
 		firstFrame = false;
 	}
 

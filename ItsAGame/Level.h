@@ -22,6 +22,7 @@ public:
 	void applyStencil(std::string stencilFile, sf::Color color);
 
 	sf::Color getDataFrom(unsigned int x, unsigned int y);
+	
 
 private:
 	sf::Image levelData;

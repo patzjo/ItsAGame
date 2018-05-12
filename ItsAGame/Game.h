@@ -41,7 +41,7 @@ private:
 	class State state;
 	class Noise sound;
 
-	class Player *players[4];
+	class Player *players[4]{ nullptr };
 	int   playerCount = 0;
 
 	float deltaTime = 0.0f;

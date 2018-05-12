@@ -28,15 +28,16 @@ public:
 
 	void setGamePointer(class Game *Game) { game = Game; }
 	void initialize();
+
+	void startAgain();
 	
 	void update(float dT);
 	void checkCollisions(float dT);
 	
 	GameObject *createObject(sf::Vector2f position, GameObject *object);
 	void queueToCreate(sf::Vector2f position, GameObject *object);
-
 	void queueToRemove(GameObject *object);
-
+	void processQueues();
 	void notifySubject(int event, void *data);
 
 	sf::Vector2f getGravity()	{ return activeForces.gravity; }

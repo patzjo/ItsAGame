@@ -6,6 +6,7 @@
 
 enum CollisionMode { IGNORE_COLLISION, CIRCLE_COLLISION, BOX_COLLISION };
 enum RenderShape   { CIRCLE, RECTANGLE };
+enum ObjectType	   { PLAYER, CANNONBALL, NONE };
 
 struct OverlappingWrapper
 {
@@ -150,8 +151,11 @@ public:
 	RenderComponent    *getRenderComponent()	{ return renderComponent;  }
 	CollisionComponent *getCollisionComponent() { return collisionComponent; }
 	bool falling = true;
+	ObjectType getType() { return type; }
+
 protected:
 	int id;
+	ObjectType type = NONE;
 
 	RenderComponent    *renderComponent    = nullptr;
 	PhysicsComponent   *physicsComponent   = nullptr;
@@ -183,7 +187,7 @@ public:
 	float getCannonAngle() { return cannonAngle; }
 
 	InputComponent *getInputComponent() { return inputComponent; }
-
+	void takeDamage(int amount);
 
 private:
 	std::string name;
@@ -213,6 +217,7 @@ public:
 private:
 	float explosionRadius = 50.0f;
 	float size = 4;
+	float damage = 20.0f;
 };
 
 class Explosion : public GameObject

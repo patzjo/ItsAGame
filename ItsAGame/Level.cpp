@@ -77,7 +77,7 @@ void Level::generateRectangleLevel(int width, int height, int minHeight, int max
 {
 	std::random_device generator;
 	
-	levelData.create(width, height, sf::Color::Black);
+	levelData.create(width, height, sf::Color(0, 0, 0, 0));
 
 	int minPieces = (int)((float)width / (float)maxWidth + 0.5f);
 	int maxPieces = (int)((float)width / (float)minWidth + 0.5f);
@@ -174,14 +174,29 @@ void Level::doCircleHole(sf::Vector2f pos, float radius, sf::Color color, bool c
 
 					float length = sqrtf((float)radiusX*(float)radiusX + (float)radiusY * (float)radiusY);
 
-					if (length <= radius)
+					if (length < radius-2)
 					{
 						levelData.setPixel(x, y, color);
 					}
+					else if (length <= radius)
+					{
+						sf::Color darker = getDataFrom(x, y);
+						if ( darker != sf::Color(0,0,0,0))
+						{
+							darker.r = 25;
+							darker.g = 25;
+							darker.b = 25;
+							darker.a = 255;
+
+							levelData.setPixel(x, y, darker);
+						}
+					}
+					
 				}
 			}
 		}
 	}
+
 	levelTexture.loadFromImage(levelData);
 	updateRenderer();
 }
@@ -206,13 +221,14 @@ void Level::applyStencil(std::string stencilFile, sf::Color color)
 				levelData.setPixel(x, y, stencilImage.getPixel(x % stencilSize.x, y % stencilSize.y));
 		}
 	}
+	levelTexture.loadFromImage(levelData);
 	updateRenderer();
 }
 
 sf::Color Level::getDataFrom(unsigned int x, unsigned int y)
 {
 	if (x >= levelData.getSize().x || y >= levelData.getSize().y)
-		return sf::Color::Black;
+		return sf::Color(0, 0, 0, 0);
 	return levelData.getPixel(x, y);
 }
 

@@ -160,7 +160,7 @@ void CollisionComponent::increaseOverlapTime(GameObject * GO, float dT)
 
 
 
-// TestObject
+// Cannonball
 CannonBall::CannonBall()
 {
 	renderComponent = new RenderComponent(this);
@@ -170,7 +170,7 @@ CannonBall::CannonBall()
 	vel = { 0.0f, 0.0f };
 	collisionComponent->collisionMode = CIRCLE_COLLISION;
 
-	collisionComponent->circleCollisionRadius = size;
+	collisionComponent->circleCollisionRadius = size*2;
 	collisionComponent->collisionPoints.push_back({0.0f, 0.0f});	// Center point
 	collisionComponent->collisionPoints.push_back({-size, 0.0f });	// Left point
 	collisionComponent->collisionPoints.push_back({ size, 0.0f });	// Right point
@@ -193,6 +193,7 @@ CannonBall::~CannonBall()
 
 void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventData)
 {
+	int soundIndex = 1;
 	if (this == gameObject)
 	{
 		switch (eventType)
@@ -200,15 +201,28 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		case E_START_OVERLAP:
 		{
 				CollisionData *data = (CollisionData *)eventData;
+				if (data->colliedGameObject != this->getOwner())
+				{
+					subject->notifySubject(E_SPAWN_EXPLOSION, (void*)&position);
+     				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
+					subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
+
+	
+					if (data->colliedGameObject->getType() == PLAYER)
+					{
+						Player *player = (Player *)data->colliedGameObject;
+						player->takeDamage(damage);
+					}
+										
+				}
 		} break;
 
 		case E_COLLISION_WITH_LEVEL:
 		{
 				Level *levelPointer = (Level *)eventData;
-				levelPointer->doCircleHole(position, explosionRadius, sf::Color::Black);
+				levelPointer->doCircleHole(position, explosionRadius, sf::Color(0,0,0,0));
 				subject->notifySubject(E_SPAWN_EXPLOSION, (void*)&position);
 			
-				int soundIndex = 1;
 				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
 
 				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
@@ -241,15 +255,18 @@ void CannonBall::update(class World *world, float dT)
 // Player
 Player::Player(std::string Name)
 {
+	type = PLAYER;
 	name = Name;
 	renderComponent =	 new RenderComponent(this);
 	collisionComponent = new CollisionComponent(this);
 	physicsComponent =   new PlayerPhysicsComponent(this);
 	inputComponent	   = new InputComponent(this);
 
+	cannonAngle = 90.0f;
+
 	Graphics *graphics = new Graphics;
 	graphics->type = RENDER_SPRITE;
-	graphics->textureID = 0;
+	graphics->textureID = 0; // Assets.h
 	renderComponent->graphics.push_back(graphics);
 
 	cannon = new Graphics;
@@ -258,7 +275,7 @@ Player::Player(std::string Name)
 	cannon->rect = { {0.0f, 0.0f}, { 35.0f, 5.0f } };
 	cannon->origin = { 0.0f, cannon->rect.halfSize.y*0.5f };
 	cannon->center = false;
-	cannon->angle = 0.0f;
+	cannon->angle = 360.0f-cannonAngle;
 	cannon->offset = {8.0f, -15.0f};
 	cannon->fillColor = sf::Color(0, 100, 0);
 	cannon->outlineColor = sf::Color(0, 150, 0);
@@ -285,6 +302,7 @@ Player::Player(std::string Name)
 	collisionComponent->collisionArea.centerPos = position;
 	collisionComponent->collisionArea.halfSize = { 40.0f, 25.0f };
 
+	
 }
 
 
@@ -317,7 +335,7 @@ void Player::handleLevelCollision(Level *level)
 		unsigned int XCheck = (unsigned int)collisionPoint.x + (unsigned int)position.x;
 		unsigned int YCheck = (unsigned int)collisionPoint.y + (unsigned int)position.y;
 
-		while (level->getDataFrom(XCheck, YCheck) != sf::Color::Black)
+		while (level->getDataFrom(XCheck, YCheck) != sf::Color(0, 0, 0, 0))
 		{
 			climbAmount++;
 			YCheck = (unsigned int)(collisionPoint.y + position.y - climbAmount);
@@ -381,6 +399,15 @@ void Player::moveCannonAngleDown(float dT)
 		cannonAngle = 360.0f + cannonAngle;
 
 	cannon->angle = 360-cannonAngle;
+}
+
+void Player::takeDamage(int amount)
+{
+	health -= amount;
+	if (health <= 0)
+	{
+		subject->notifySubject(E_REMOVE_PLAYER, (void*)this);
+	}
 }
 
 void Player::update(class World *world, float dT)

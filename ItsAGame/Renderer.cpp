@@ -28,6 +28,8 @@ bool Renderer::initialize(int ScreenWidth, int ScreenHeight, std::string name, b
 
 	loadGraphicAssets();
 
+	createBackground(2,2);
+
 	return false;
 }
 
@@ -44,6 +46,25 @@ void Renderer::addFont(std::string filename)
 	font.loadFromFile(filename);
 
 	fonts.push_back(font);
+}
+
+
+
+void Renderer::createBackground( int startTexture, int endTexture )
+{
+//	backgroundSprite.setTextureRect({ 0, 0, 1280, 1024 });
+	/*
+	for (unsigned int c = startTexture; c < endTexture; c++)
+	{
+	}
+*/
+	backgroundSprite.setTexture(*getTexture(startTexture));
+	backgroundSprite.setColor({ 100, 100, 100 });
+}
+
+void Renderer::renderBackground()
+{
+	window.draw(backgroundSprite);
 }
 
 void Renderer::renderLevel()
@@ -190,17 +211,54 @@ void Renderer::drawLevelCollisionBoxes()
 	}
 }
 
+void Renderer::drawCollisionVolumes()
+{
+	sf::RectangleShape rect;
+	sf::CircleShape circle;
+
+	rect.setFillColor(sf::Color::Red);
+	circle.setFillColor(sf::Color::Yellow);
+
+	for (auto i :  renderComponents)
+	{
+		if (!i->parent->getCollisionComponent()) continue;
+
+		if (i->parent->getCollisionComponent()->collisionMode == CIRCLE_COLLISION)
+		{
+			circle.setRadius(i->parent->getCollisionComponent()->circleCollisionRadius);
+			circle.setOrigin(i->parent->getCollisionComponent()->circleCollisionRadius, i->parent->getCollisionComponent()->circleCollisionRadius);
+
+			circle.setPosition(i->parent->position);
+
+			window.draw(circle);
+		}
+		if (i->parent->getCollisionComponent()->collisionMode == BOX_COLLISION)
+		{
+			
+			rect.setPosition(i->parent->position.x - i->parent->getCollisionComponent()->getCollisionBox().halfSize.x, 
+				i->parent->position.y - i->parent->getCollisionComponent()->getCollisionBox().halfSize.y);
+			rect.setSize(i->parent->getCollisionComponent()->getCollisionBox().halfSize * 2.0f);
+
+			window.draw(rect);
+		}
+	}
+}
+
 void Renderer::render()
 {
 	window.clear();
-
+	
+	
+	renderBackground();
 	renderLevel();
 	renderGameObjects();
 
 	// For qTree debug drawing
 	world->collisionTree.draw(this, sf::Color::Green, 1.0f);
+
 	//drawLevelCollisionBoxes();
-	
+	//drawCollisionVolumes();
+
 	renderTexts();
 	window.display();
 }
