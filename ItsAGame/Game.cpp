@@ -33,9 +33,15 @@ void Game::run()
 {
 	sf::Text text;
 	
+	int frames = 0;
+	int framesPerSec = 0;
+	float timeElapsed = 0.0f;
+	bool firstFrame = false;
+	
 	sf::Clock clock;
 	while (state.getState() != StateEnum::QUIT)
 	{
+		deltaTime = clock.restart().asSeconds();
 		state.changeRequestedState();
 
 		switch (state.getState())
@@ -44,13 +50,48 @@ void Game::run()
 			menuLoop();
 			break;
 
-		case StateEnum::PLAYING:
 		case StateEnum::START_NEW_GAME:
-			playLoop();
+			world.notifySubject(E_START_AGAIN, 0);
+			world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
+			world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
+			world.startAgain();
+			state.setState(StateEnum::PLAYING);
+			firstFrame = true;
+		break;
+
+
+		case StateEnum::PLAYING:
+			playLoop(deltaTime);
 			break;
 
 		default:break;
 		}
+
+		
+		if (!firstFrame)
+		{
+			if (deltaTime > deltaTimeMax)
+				deltaTimeMax = deltaTime;
+
+			if (deltaTime < deltaTimeMin)
+				deltaTimeMin = deltaTime;
+		}
+
+		// Update frames per seconds
+		timeElapsed += deltaTime;
+		frames++;
+		if (timeElapsed >= 1.0)
+		{
+			timeElapsed = 0.0f;
+			framesPerSec = frames;
+			frames = 0;
+		}
+
+
+		showFPS(framesPerSec);
+		renderer.render();
+		world.processQueues();
+		firstFrame = false;
 	}
 
 	renderer.shutDown();
@@ -97,66 +138,17 @@ void Game::processEvents(sf::RenderWindow & window)
 
 }
 
-void Game::playLoop()
+void Game::playLoop( float deltaTime )
 {
-	if (state.getState() == StateEnum::START_NEW_GAME)
-	{
-		world.notifySubject(E_START_AGAIN, 0);
-		world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
-		world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
-		world.startAgain();
-		state.setState(StateEnum::PLAYING);
-	}
-	int frames = 0;
-	int framesPerSec = 0;
-	float timeElapsed = 0.0f;
-
-	sf::Clock clock;
-	bool firstFrame = true;
-
-	while (state.getState() == StateEnum::PLAYING)
-	{
-
-		deltaTime = clock.restart().asSeconds();
 		processEvents(renderer.getWindow());
-		
 		world.update(deltaTime);
-		showFPS(framesPerSec);
-
 		renderer.updateAnimations(deltaTime);
-		renderer.render();
-		
-		world.processQueues();
-		timeElapsed += deltaTime;
-		frames++;
-		if (timeElapsed >= 1.0)
-		{
-			timeElapsed = 0.0f;
-			framesPerSec = frames;
-			frames = 0;
-		}
-
-		if (!firstFrame)
-		{
-			if (deltaTime > deltaTimeMax)
-				deltaTimeMax = deltaTime;
-
-			if (deltaTime < deltaTimeMin)
-				deltaTimeMin = deltaTime;
-		}
-
-		
-		firstFrame = false;
-	}
 }
 
 void Game::menuLoop()
 {
-	while (state.getState() == StateEnum::MENU)
-	{
-		processEvents(renderer.getWindow());
-		renderer.render();
-	}
+	processEvents(renderer.getWindow());
+	renderer.render();
 }
 
 void Game::showFPS(int frameCount)
@@ -190,7 +182,7 @@ void Game::updateGameSituation(PlayerKilledData * data)
 		if (players[c])
 			alivePlayers++;
 
-	if (alivePlayers <= 1)
+	if (alivePlayers <= 1 && state.getState() == StateEnum::PLAYING)
 	{
 		state.requestState(START_NEW_GAME);
 		//		state.setState(START_NEW_GAME);

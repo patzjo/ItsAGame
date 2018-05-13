@@ -20,7 +20,7 @@ public:
 	void exit() { state.setState(StateEnum::QUIT); }
 	void processEvents(sf::RenderWindow& window);
 
-	void playLoop();
+	void playLoop( float deltaTime );
 	void menuLoop();
 
 	void showFPS(int frameCount);
