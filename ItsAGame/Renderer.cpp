@@ -10,6 +10,8 @@
 #include "Assets.h"
 #include "Utils.h"
 
+#include "Game.h"
+#include "State.h"
 
 
 Renderer::Renderer()
@@ -250,8 +252,12 @@ void Renderer::render()
 	
 	
 	renderBackground();
-	renderLevel();
-	renderGameObjects();
+
+	if ( world->getGame()->getState()->getState() == StateEnum::PLAYING )
+	{
+		renderLevel();
+		renderGameObjects();
+	}
 
 	// For qTree debug drawing
 	world->collisionTree.draw(this, sf::Color::Green, 1.0f);

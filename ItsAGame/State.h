@@ -17,7 +17,6 @@ public:
 		if ( state != stateRequested && 
 			stateRequested != StateEnum::STATE_NONE)
 		{
-			std::cout << "Change state! State: " << state << " -> " << stateRequested << std::endl;
 			setState(stateRequested);
 			stateRequested = StateEnum::STATE_NONE;
 		}
@@ -25,6 +24,6 @@ public:
 
 	State()	{}
 private:
-	StateEnum state = StateEnum::START_NEW_GAME;
+	StateEnum state = StateEnum::MENU;
 	StateEnum stateRequested = StateEnum::STATE_NONE;
 };

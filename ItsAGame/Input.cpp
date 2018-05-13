@@ -36,7 +36,6 @@ void Input::setKeysFromOptions(class Game *game)
 		{
 			for (unsigned int i = 0; i < 5; i++)
 			{
-				std::cout << "Pushin key: " << game->getOptions()->playerKeys[c][i].key << " -> player[" << c << "] = " << game->getOptions()->playerKeys[c][i].name << std::endl;
 				game->getPlayer(c)->getInputComponent()->pushCommand(
 					game->getOptions()->playerKeys[c][i].key, 
 					getCommand(game->getOptions()->playerKeys[c][i].name)

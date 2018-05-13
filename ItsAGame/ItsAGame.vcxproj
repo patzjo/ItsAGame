@@ -133,13 +133,13 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Obspat.cpp" />
     <ClCompile Include="Particles.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Assets.cpp" />
-    <ClCompile Include="State.cpp" />
     <ClCompile Include="State.h" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="World.cpp" />
@@ -154,6 +154,7 @@
     <ClInclude Include="GameOptions.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Obspat.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="QTree.h" />

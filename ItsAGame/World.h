@@ -43,6 +43,8 @@ public:
 	sf::Vector2f getGravity()	{ return activeForces.gravity; }
 	sf::Vector2f getWind()		{ return activeForces.wind; }
 
+	class Game *getGame()		{ return game; }
+
 private:
 	Level level;
 	std::vector <GameObject *> gameObjects;

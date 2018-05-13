@@ -43,11 +43,12 @@ void Game::run()
 	{
 		deltaTime = clock.restart().asSeconds();
 		state.changeRequestedState();
+		processEvents(renderer.getWindow());
 
 		switch (state.getState())
 		{
 		case StateEnum::MENU:
-			menuLoop();
+			menuLoop(deltaTime);
 			break;
 
 		case StateEnum::START_NEW_GAME:
@@ -55,7 +56,7 @@ void Game::run()
 			world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
 			world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
 			world.startAgain();
-			state.setState(StateEnum::PLAYING);
+			state.requestState(StateEnum::PLAYING);
 			firstFrame = true;
 		break;
 
@@ -89,8 +90,11 @@ void Game::run()
 
 
 		showFPS(framesPerSec);
+		
 		renderer.render();
+		
 		world.processQueues();
+
 		firstFrame = false;
 	}
 
@@ -113,7 +117,10 @@ void Game::processEvents(sf::RenderWindow & window)
 			switch (event.key.code)
 			{
 			case sf::Keyboard::Escape:
-				state.setState(StateEnum::QUIT);
+				if (state.getState() != StateEnum::MENU)
+					state.setState(StateEnum::MENU);
+				else
+					state.setState(StateEnum::QUIT);
 				break;
 
 			case sf::Keyboard::I:
@@ -128,6 +135,37 @@ void Game::processEvents(sf::RenderWindow & window)
 				state.requestState(StateEnum::START_NEW_GAME);
 				break;
 
+
+			default: break;
+			}
+		}
+
+		if (event.type == sf::Event::KeyPressed)
+		{
+			switch (event.key.code)
+			{
+			case sf::Keyboard::Return:
+				if (state.getState() == StateEnum::MENU)
+				{
+					std::string selection = menu.getSelection();
+					if (selection == "Start Game")
+						state.requestState(StateEnum::START_NEW_GAME);
+
+					if (selection == "Quit Game")
+						state.requestState(StateEnum::QUIT);
+				}
+				break;
+
+			case sf::Keyboard::Up:
+				if (state.getState() == StateEnum::MENU)
+					menu.selectionUp();
+				break;
+
+			case sf::Keyboard::Down:
+				if (state.getState() == StateEnum::MENU)
+					menu.selectionDown();
+				break;
+
 			default: break;
 			}
 		}
@@ -140,15 +178,15 @@ void Game::processEvents(sf::RenderWindow & window)
 
 void Game::playLoop( float deltaTime )
 {
-		processEvents(renderer.getWindow());
 		world.update(deltaTime);
 		renderer.updateAnimations(deltaTime);
 }
 
-void Game::menuLoop()
+void Game::menuLoop(float deltaTime)
 {
-	processEvents(renderer.getWindow());
-	renderer.render();
+	menu.update(deltaTime);
+	menu.render( &renderer );
+
 }
 
 void Game::showFPS(int frameCount)
