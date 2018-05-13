@@ -40,6 +40,8 @@ public:
 	void processQueues();
 	void notifySubject(int event, void *data);
 
+	void applyWind(int left, int right);
+
 	sf::Vector2f getGravity()	{ return activeForces.gravity; }
 	sf::Vector2f getWind()		{ return activeForces.wind; }
 

@@ -334,7 +334,12 @@ Player::Player(std::string Name)
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 25.0f));  // Bottom left
 	collisionComponent->addCollisionPoint(sf::Vector2f(0.0f, 25.0f));    // bottom Center
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 25.0f));   // Bottom right
-	
+
+	collisionComponent->addCollisionPoint(sf::Vector2f(-20.0f, 25.0f));  
+	collisionComponent->addCollisionPoint(sf::Vector2f(10.0f, 25.0f));   
+	collisionComponent->addCollisionPoint(sf::Vector2f(20.0f, 25.0f));   
+
+
 	collisionComponent->addCollisionPoint(sf::Vector2f(-40.0f, 0.0f));	 // Left
 	collisionComponent->addCollisionPoint(sf::Vector2f(40.0f, 0.0f));	 // Right
 

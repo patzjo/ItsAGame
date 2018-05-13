@@ -55,6 +55,7 @@ private:
 	float deltaTimeMax = 0.0f;  // Keeps maximum loop time
 
 	bool FPSCounter = false;		// Show fps counter ?
+	std::string roundWinner = "";
 
 };
 

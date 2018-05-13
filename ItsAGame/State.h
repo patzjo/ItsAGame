@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-enum StateEnum { QUIT, MENU, PLAYING, START_NEW_GAME, STATE_NONE };
+enum StateEnum { QUIT, MENU, PLAYING, START_NEW_GAME, STATE_NONE, ANNOUNCE_WINNER };
 
 class State
 {

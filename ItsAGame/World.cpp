@@ -271,6 +271,11 @@ void World::notifySubject(int event, void *data)
 	}
 }
 
+void World::applyWind(int left, int right)
+{
+	activeForces.wind.x = -left + rand() % (left+right);
+}
+
 
 GameObject* World::createObject(sf::Vector2f position, GameObject * object)
 {

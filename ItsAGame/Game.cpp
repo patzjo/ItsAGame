@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <sstream>
 #include "GameOptions.h"
 #include "World.h"
 #include "GameObject.h"
@@ -9,6 +11,15 @@
 #include "Command.h"
 #include "Input.h"
 #include "Game.h"
+
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 6)
+{
+	std::ostringstream out;
+	out << std::setprecision(n) << a_value;
+	return out.str();
+}
+
 Game::Game()
 {
 }
@@ -37,7 +48,8 @@ void Game::run()
 	int framesPerSec = 0;
 	float timeElapsed = 0.0f;
 	bool firstFrame = false;
-	
+	float winningInformationTime = 0.0f;
+	float blinky = 0.0f;
 	sf::Clock clock;
 	while (state.getState() != StateEnum::QUIT)
 	{
@@ -56,10 +68,25 @@ void Game::run()
 			world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
 			world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
 			world.startAgain();
+			winningInformationTime = 0.0f;
 			state.requestState(StateEnum::PLAYING);
+			world.applyWind(4, 4);
 			firstFrame = true;
 		break;
 
+
+		case StateEnum::ANNOUNCE_WINNER:
+		{
+			winningInformationTime += deltaTime;
+			if (winningInformationTime > 10.0f)
+			{
+				winningInformationTime = 0.0f;
+				state.requestState(START_NEW_GAME);
+			}
+
+			renderer.pushText("Winner is " + roundWinner, {renderer.getWindow().getSize().x/2.0f, renderer.getWindow().getSize().y / 2.0f - 200.0f}, 0, 128, sf::Color::Yellow, true);
+			renderer.pushText("New round in " + std::to_string((int)(10.0f - winningInformationTime)), { renderer.getWindow().getSize().x / 2.0f, renderer.getWindow().getSize().y / 2.0f }, 0, 128, sf::Color::Yellow, true);
+		} 
 
 		case StateEnum::PLAYING:
 			playLoop(deltaTime);
@@ -96,6 +123,7 @@ void Game::run()
 		world.processQueues();
 
 		firstFrame = false;
+		blinky+=0.1f;
 	}
 
 	renderer.shutDown();
@@ -171,19 +199,25 @@ void Game::processEvents(sf::RenderWindow & window)
 		}
 	}
 
-	for (unsigned int c = 0; c < playerCount; c++)
-	{
-		if ( players[c] )
-			if ( players[c]->active )
-				input.processInput(this, players[c]);
-	}
+	// Do not update keys if winner is clear
+	if ( state.getState() != ANNOUNCE_WINNER )
+		for (unsigned int c = 0; c < playerCount; c++)
+		{
+			if ( players[c] )
+				if ( players[c]->active )
+					input.processInput(this, players[c]);
+		}
 
 }
 
 void Game::playLoop( float deltaTime )
 {
-		world.update(deltaTime);
-		renderer.updateAnimations(deltaTime);
+	std::string windString("Wind: ");
+	windString += to_string_with_precision(world.getWind().x, 2);
+	renderer.pushText(windString, { renderer.getWindow().getSize().x / 2.0f, 10 }, 0, 32, sf::Color::White, true);
+
+	world.update(deltaTime);
+	renderer.updateAnimations(deltaTime);
 }
 
 void Game::menuLoop(float deltaTime)
@@ -222,11 +256,14 @@ void Game::updateGameSituation(PlayerKilledData * data)
 	int alivePlayers = 0;
 	for (unsigned int c = 0; c < playerCount; c++)
 		if (players[c])
+		{
+			roundWinner = players[c]->getName();
 			alivePlayers++;
+		}
 
 	if (alivePlayers <= 1 && state.getState() == StateEnum::PLAYING)
 	{
-		state.requestState(START_NEW_GAME);
+		state.requestState(ANNOUNCE_WINNER);
 		//		state.setState(START_NEW_GAME);
 	}
 }

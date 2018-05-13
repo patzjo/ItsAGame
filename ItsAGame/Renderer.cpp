@@ -255,7 +255,8 @@ void Renderer::render()
 	
 	renderBackground();
 
-	if ( world->getGame()->getState()->getState() == StateEnum::PLAYING )
+	if ( world->getGame()->getState()->getState() == StateEnum::PLAYING || 
+		world->getGame()->getState()->getState() == StateEnum::ANNOUNCE_WINNER )
 	{
 		renderLevel();
 		renderGameObjects();
