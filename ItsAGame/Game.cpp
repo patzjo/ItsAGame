@@ -171,8 +171,12 @@ void Game::processEvents(sf::RenderWindow & window)
 		}
 	}
 
-	for (unsigned int c = 0; c < playerCount; c++ )
-		input.processInput(this, players[c]);
+	for (unsigned int c = 0; c < playerCount; c++)
+	{
+		if ( players[c] )
+			if ( players[c]->active )
+				input.processInput(this, players[c]);
+	}
 
 }
 

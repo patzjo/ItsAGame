@@ -26,7 +26,8 @@ Renderer::~Renderer()
 bool Renderer::initialize(int ScreenWidth, int ScreenHeight, std::string name, bool vsync, bool fullScreen)
 {
 	window.create(sf::VideoMode(ScreenWidth, ScreenHeight), name, fullScreen?sf::Style::Fullscreen:sf::Style::Default);
-	window.setVerticalSyncEnabled(vsync);
+	window.setFramerateLimit(60);
+//	window.setVerticalSyncEnabled(vsync);
 
 	loadGraphicAssets();
 
@@ -158,6 +159,7 @@ void Renderer::pushRenderable(struct RenderComponent * renderComponent)
 {
 	if (renderComponent)
 	{
+		renderComponent->renderer = this;
 		for (auto piece : renderComponent->graphics)
 		{
 			if (piece->type == RENDER_SPRITE)
@@ -165,8 +167,8 @@ void Renderer::pushRenderable(struct RenderComponent * renderComponent)
 
 			else if (piece->type == RENDER_ANIM)
 			{
-				float tu = renderComponent->currentFrame % (int)(getTexture(piece->textureID)->getSize().x / renderComponent->animWidth);
-				float tv = renderComponent->currentFrame / (int)(getTexture(piece->textureID)->getSize().y / renderComponent->animHeight);
+				float tu = (float)(renderComponent->currentFrame % (int)(getTexture(piece->textureID)->getSize().x / renderComponent->animWidth));
+				float tv = (float)(renderComponent->currentFrame / (int)(getTexture(piece->textureID)->getSize().y / renderComponent->animHeight));
 
 				float halfW = renderComponent->animWidth / 2.0f;
 				float halfH = renderComponent->animHeight / 2.0f;

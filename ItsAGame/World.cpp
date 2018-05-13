@@ -113,9 +113,11 @@ void World::checkCollisions(float dT)
 			
 					curGOData.colliedGameObject = anotherGO;
 					curGOData.gameObject = GO;
+					curGOData.world = this;
 					
 					anotherGOData.colliedGameObject = GO;
 					anotherGOData.gameObject = anotherGO;
+					anotherGOData.world = this;
 
 					currentGameObjectCollisionComponent->addOverlappingObject(anotherGO);
 
@@ -152,7 +154,10 @@ void World::checkCollisions(float dT)
 						sf::Vector2f pointToCheck = (point + GO->position);
 						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color(0,0,0,0))
 						{
-							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
+							CollisionData data;
+							data.level = &level;
+							data.world = this;
+							notify(GO, E_COLLISION_WITH_LEVEL, &data);
 							break;
 						}
 					}
@@ -172,7 +177,10 @@ void World::checkCollisions(float dT)
 						sf::Vector2f pointToCheck = point + GO->position;
 						if (level.getDataFrom((unsigned int)pointToCheck.x, (unsigned int)pointToCheck.y) != sf::Color(0, 0, 0, 0))
 						{
-							notify(GO, E_COLLISION_WITH_LEVEL, (void*)&level);
+							CollisionData data;
+							data.level = &level;
+							data.world = this;
+							notify(GO, E_COLLISION_WITH_LEVEL, &data);
 							break;
 						}
 					}
@@ -205,6 +213,7 @@ void World::notifySubject(int event, void *data)
 	{
 		
 		Player *player = ((PlayerKilledData *)data)->player;;
+		player->active = false;
 		for (unsigned int c = 0; c < game->getPlayerCount(); c++)
 		{
 			if (game->players[c] == player)
@@ -245,11 +254,12 @@ void World::notifySubject(int event, void *data)
 			switch (gameObjects[c]->getType())
 			{
 			case PLAYER:
+			{
 				PlayerKilledData data;
 				data.whoKilled = nullptr;
 				data.player = (Player *)gameObjects[c];
 				notifySubject(E_REMOVE_PLAYER, &data);
-				break;
+			} break;
 			
 			default:
 				notifySubject(E_REMOVE_GAMEOBJECT, gameObjects[c]);

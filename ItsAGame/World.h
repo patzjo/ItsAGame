@@ -45,6 +45,8 @@ public:
 
 	class Game *getGame()		{ return game; }
 
+	std::vector <GameObject *> getObjectsInRange(Rectangle<float> area) { return collisionTree.getObjectsInRange(area); }
+
 private:
 	Level level;
 	std::vector <GameObject *> gameObjects;

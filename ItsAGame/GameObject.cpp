@@ -205,15 +205,32 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 
 		case E_COLLISION_WITH_LEVEL:
 		{
-			Level *levelPointer = (Level *)eventData;
-				levelPointer->doCircleHole(position, explosionRadius, sf::Color(0,0,0,0));
+			Level *levelPointer = ((CollisionData *)eventData)->level;
+			levelPointer->doCircleHole(position, explosionRadius, sf::Color(0,0,0,0));
 		
-				ExplosionData explosionData{ position, 0 };
-				subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
+			Rectangle<float> areaToLook(position, { explosionRadius*2, explosionRadius*2 });
+			std::vector <GameObject *> objectsInArea = ((CollisionData *)eventData)->world->getObjectsInRange(areaToLook);
 
-				subject->notifySubject(E_PLAY_SOUND, &soundIndex);
+			for (GameObject *object : objectsInArea)
+			{
+				if (object->getType() == PLAYER)
+				{
+					float radius = explosionRadius * explosionRadius * 2;
+					sf::Vector2f distance = position - object->position;
+					float distanceSquared = distance.x *distance.x + distance.y + distance.y;
+//					std::cout << "Distance: " << distanceSquared << " radius: " << radius << " multiply: " << distanceSquared/radius<< std::endl;
+					if (distanceSquared <= radius)
+					{
+						((Player *)object)->takeDamage(owner, (radius - distanceSquared)/radius * damage);
+					}
+				}
+			}
 
-				subject->notifySubject(E_REMOVE_GAMEOBJECT, this);
+			ExplosionData explosionData{ position, 0 };
+			subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
+
+			subject->notifySubject(E_PLAY_SOUND, &soundIndex);
+			subject->notifySubject(E_REMOVE_GAMEOBJECT, this);
 		} break;
 
 		case E_ANOTHER_GAMEOBJECT_COLLIED:
@@ -253,9 +270,9 @@ void CannonBall::processCollision(CollisionData * collisionData)
 	{
 		int soundIndex = 1;
 		CollisionData data;
-		data.gameObject =	     collisionData->colliedGameObject;
-		data.colliedGameObject = collisionData->gameObject;
-
+		data.gameObject			= collisionData->colliedGameObject;
+		data.colliedGameObject	= collisionData->gameObject;
+		data.world				= collisionData->world;
 
 		if (collisionData->colliedGameObject->getType() == PLAYER)
 		{
@@ -339,7 +356,7 @@ void Player::onNotify(GameObject * gameObject, int eventType, void * eventData)
 			break;
 	
 		case E_COLLISION_WITH_LEVEL:
-				handleLevelCollision((Level *)eventData);
+				handleLevelCollision(((CollisionData *)eventData)->level);
 			break;
 
 		default: 
@@ -409,7 +426,7 @@ void Player::moveCannonAngleUp(float dT)
 	cannonAngle += cannonAngleSpeed * dT;
 
 	if (cannonAngle > 360.0f)
-		cannonAngle = (int)cannonAngle % 360;
+		cannonAngle = (float)((int)cannonAngle % 360);
 
 	cannon->angle = 360-cannonAngle;
 }
@@ -424,7 +441,7 @@ void Player::moveCannonAngleDown(float dT)
 	cannon->angle = 360-cannonAngle;
 }
 
-void Player::takeDamage(GameObject *from, int amount)
+void Player::takeDamage(GameObject *from, float amount)
 {
 	health -= amount;
 	if (health <= 0)
@@ -441,8 +458,12 @@ void Player::update(class World *world, float dT)
 	if ( loadingTime < fireRate )
 		loadingTime += dT;
 	physicsComponent->update(world, dT);
-	if ( getRenderComponent()->renderer )
-		getRenderComponent()->renderer->pushText(std::to_string(health), position+sf::Vector2f(0.0f, -50.0f), 0, 32, sf::Color::Green, true);
+	
+	if (getRenderComponent()->renderer)
+	{
+		getRenderComponent()->renderer->pushText(name, position + sf::Vector2f(0.0f, -120.0f), 0, 16, sf::Color::Yellow, true);
+		getRenderComponent()->renderer->pushText(std::to_string((int)health), position + sf::Vector2f(0.0f, -100.0f), 0, 16, sf::Color::Green, true);
+	}
 }
 
 void PlayerPhysicsComponent::update(World * world, float dT)
@@ -464,7 +485,10 @@ void PlayerPhysicsComponent::update(World * world, float dT)
 	acc.y = 0;
 
 	if (parent->position.y > 4000.0f || parent->position.x < -2000.0f || parent->position.x > 10000.0f || parent->position.y < -10000.f)
-		world->queueToRemove(parent);
+	{
+		PlayerKilledData data{ (Player *)parent, (Player *)parent };
+		((Player *)parent)->getSubject()->notifySubject(E_REMOVE_PLAYER, &data);
+	}
 
 }
 

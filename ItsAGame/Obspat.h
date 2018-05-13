@@ -11,14 +11,16 @@ enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAK
 
 struct CollisionData
 {
-	class GameObject *colliedGameObject;
-	class GameObject *gameObject;
+	class GameObject *colliedGameObject = nullptr;
+	class GameObject *gameObject = nullptr;
+	class World		 *world = nullptr;
+	class Level		 *level = nullptr;
 };
 
 struct PlayerKilledData
 {
-	class GameObject *whoKilled;
-	class Player *player;
+	class GameObject *whoKilled = nullptr;
+	class Player *player = nullptr;
 };
 
 struct ExplosionData
@@ -35,6 +37,7 @@ public:
 	~Observer();
 
 	virtual void onNotify(class GameObject *gameObject, int eventType, void *eventData) = 0;
+	class Subject *getSubject() { return subject;  }
 protected:
 	class Subject *subject;
 };

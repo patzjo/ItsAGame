@@ -187,13 +187,13 @@ public:
 	float getCannonAngle() { return cannonAngle; }
 
 	InputComponent *getInputComponent() { return inputComponent; }
-	void takeDamage(GameObject *from, int amount);
+	void takeDamage(GameObject *from, float amount);
 
 private:
 	std::string name;
 	float playerAngle	= 0.0f; // 180 or 0 degrees, debends on which side on screen he is
-	int health		= 100; 
-	int fullHealth	= 100;
+	float health		= 100.0f; 
+	float fullHealth	= 100.0f;
 
 	float cannonAngle = 0.0f;
 	float cannonPower = 15.0f;

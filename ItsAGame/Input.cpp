@@ -21,10 +21,13 @@ Input::~Input()
 void Input::processInput(Game *game, Player * playerObject)
 {
 	if (!playerObject) return;
+	if (!playerObject->active) return;
 	for (auto& input : playerObject->getInputComponent()->commands)
 	{
 		if (sf::Keyboard::isKeyPressed(input.key))
+		{
 			input.command->execute(game, playerObject);
+		}
 	}
 }
 

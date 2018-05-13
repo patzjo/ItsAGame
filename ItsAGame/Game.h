@@ -47,12 +47,14 @@ private:
 	class Menu menu;				// Menu
 
 	class Player *players[4]{ nullptr };	// Place for four players
+	int scores[4]{ 0 };
 	int   playerCount = 0;		// How many players have been created
 
 	float deltaTime = 0.0f;
 	float deltaTimeMin = 1.0f;	// Keeps minimum loop time
 	float deltaTimeMax = 0.0f;  // Keeps maximum loop time
 
-	bool FPSCounter = true;		// Show fps counter ?
+	bool FPSCounter = false;		// Show fps counter ?
+
 };
 
