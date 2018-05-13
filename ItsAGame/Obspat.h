@@ -2,15 +2,29 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-
+#include <SFML/Graphics.hpp>
 
 // Event data casting is made using these types
-enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAKEN, E_COLLISION_WITH_LEVEL, E_REMOVE_GAMEOBJECT, E_REMOVE_PLAYER, E_INFORM_GAMEOBJECT_REMOVED, E_PLAY_SOUND, E_SPAWN_EXPLOSION, E_START_AGAIN };
+enum EVENT_TYPE { E_ERROR, E_START_OVERLAP, E_END_OVERLAP, E_INPUT, E_DAMAGE_TAKEN, E_COLLISION_WITH_LEVEL, E_REMOVE_GAMEOBJECT, E_REMOVE_PLAYER, E_INFORM_GAMEOBJECT_REMOVED, E_PLAY_SOUND, E_SPAWN_EXPLOSION, E_START_AGAIN,
+				  E_ANOTHER_GAMEOBJECT_COLLIED};
 
 
 struct CollisionData
 {
 	class GameObject *colliedGameObject;
+	class GameObject *gameObject;
+};
+
+struct PlayerKilledData
+{
+	class GameObject *whoKilled;
+	class Player *player;
+};
+
+struct ExplosionData
+{
+	sf::Vector2f position;
+	int type = 0;
 };
 
 class Observer

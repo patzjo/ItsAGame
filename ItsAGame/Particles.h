@@ -11,13 +11,13 @@ struct Particle
 	sf::Vector2f vel;
 	sf::Vector2f acc;
 
-	bool active;
+	bool active = false;
 
 	bool collidable;
 	int collisionRadius;
 	sf::Vector2f collisionBox;
 	
-	float timeToLive;
+	float timeToLive = 0.0f;
 	float activeTime = 0.0f;
 	class GameObject *owner = nullptr;
 };

@@ -53,5 +53,6 @@ private:
 	WorldForces activeForces;	// Gravity, wind etc
 
 	std::queue <CreationQueue> objectsToCreate;
+	std::queue <GameObject *>  objectsToRemove;
 };
 

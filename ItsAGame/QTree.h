@@ -7,7 +7,7 @@ template <typename T>
 struct QTreeNodeWrapper
 {
 	sf::Vector2f position;
-	T *object;
+	T *object = nullptr;
 };
 
 template <typename T>

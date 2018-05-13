@@ -112,7 +112,10 @@ void World::checkCollisions(float dT)
 					CollisionData anotherGOData;
 			
 					curGOData.colliedGameObject = anotherGO;
+					curGOData.gameObject = GO;
+					
 					anotherGOData.colliedGameObject = GO;
+					anotherGOData.gameObject = anotherGO;
 
 					currentGameObjectCollisionComponent->addOverlappingObject(anotherGO);
 
@@ -200,17 +203,19 @@ void World::notifySubject(int event, void *data)
 	
 	case E_REMOVE_PLAYER:
 	{
-		Player *player = (Player *)data;
+		
+		Player *player = ((PlayerKilledData *)data)->player;;
 		for (unsigned int c = 0; c < game->getPlayerCount(); c++)
 		{
 			if (game->players[c] == player)
 			{
-				std::cout << "Removing da playa" << std::endl;
-				notify(nullptr, E_INFORM_GAMEOBJECT_REMOVED, (GameObject*)data);
-				queueToRemove((GameObject*)data);
+				std::string playerName = game->players[c]->getName();
+				notify(nullptr, E_INFORM_GAMEOBJECT_REMOVED, player);
+				queueToRemove(player);
 				game->players[c] = nullptr;
 			}
 		}
+		game->updateGameSituation(((PlayerKilledData *)data));
 	}break;
 
 	case E_PLAY_SOUND:
@@ -220,7 +225,18 @@ void World::notifySubject(int event, void *data)
 
 	case E_SPAWN_EXPLOSION:
 	{
-		queueToCreate(*(sf::Vector2f *)data, new Explosion());
+		switch (((ExplosionData *)data)->type)
+		{
+		case 1:
+			queueToCreate(((ExplosionData *)data)->position, new Explosion2());
+			break;
+		
+		case 0:
+		default:
+			queueToCreate(((ExplosionData *)data)->position, new Explosion());
+			break;
+		}
+
 	} break;
 	
 	case E_START_AGAIN:
@@ -229,7 +245,10 @@ void World::notifySubject(int event, void *data)
 			switch (gameObjects[c]->getType())
 			{
 			case PLAYER:
-				notifySubject(E_REMOVE_PLAYER, gameObjects[c]);
+				PlayerKilledData data;
+				data.whoKilled = nullptr;
+				data.player = (Player *)gameObjects[c];
+				notifySubject(E_REMOVE_PLAYER, &data);
 				break;
 			
 			default:
@@ -256,9 +275,6 @@ GameObject* World::createObject(sf::Vector2f position, GameObject * object)
 
 void World::queueToRemove(GameObject * object)
 {
-	removeObserver(object);
-	game->renderer.removeRenderable(object->getRenderComponent());
-	collisionTree.remove(object);
 
 	/*
 	for ( auto itr = gameObjects.begin(); itr != gameObjects.end(); itr ++)
@@ -269,6 +285,7 @@ void World::queueToRemove(GameObject * object)
 		}
 		*/
 	object->active = false;
+	objectsToRemove.push(object);
 }
 
 void World::queueToCreate(sf::Vector2f position, GameObject *object)
@@ -282,13 +299,25 @@ void World::queueToCreate(sf::Vector2f position, GameObject *object)
 
 void World::processQueues()
 {
+	while (!objectsToRemove.empty())
+	{
+		
+		removeObserver(objectsToRemove.front());
+		game->renderer.removeRenderable(objectsToRemove.front()->getRenderComponent());
+		//		collisionTree.remove(objectsToRemove.front());
+
+		objectsToRemove.pop();
+	}
+
 	gameObjects.erase(std::remove_if(gameObjects.begin(), gameObjects.end(), [](GameObject *obj) { bool result = !obj->active; if (result) delete obj; return result; }), gameObjects.end());	// Remove destroyed objects
 
-																																																// Create queuedObjects
+	// Create queuedObjects
 	while (!objectsToCreate.empty())
 	{
 		createObject(objectsToCreate.front().position, objectsToCreate.front().object);
 		objectsToCreate.pop();
 	}
 }
+
+
 

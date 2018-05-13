@@ -25,8 +25,9 @@ const struct AssetInfo assets[]
 
 // TEXTURES
 	"tank1.png",		TEXTURE,	// 0
-	"explosion4.png",	TEXTURE,	// 1
+	"explosion1.png",	TEXTURE,	// 1
 	"citybg.jpg",		TEXTURE,    // 2
+	"explosion2.png",   TEXTURE,    // 3
 
 // SOUNDS
 	"explodemini.wav",	SOUND,		// 0 

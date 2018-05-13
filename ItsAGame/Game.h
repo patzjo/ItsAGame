@@ -32,7 +32,7 @@ public:
 
 	class Player *getPlayer(int index) { return players[index]; }
 	struct GameOptions *getOptions() { return &options; }
-
+	void updateGameSituation(PlayerKilledData *data);
 private:
 	struct GameOptions options;
 	class Input input;

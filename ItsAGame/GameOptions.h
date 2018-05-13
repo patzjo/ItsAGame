@@ -13,8 +13,8 @@ struct GameOptions
 {
 	int screenWidth  = 1920;
 	int screenHeight = 1080;
-	int levelWidth = 1920;
-	int levelHeight = 1080;
+	int levelWidth	 = 1920;
+	int levelHeight  = 1080;
 	int players = 2;
 
 	int maxPlayers = 4;
@@ -25,8 +25,8 @@ struct GameOptions
 			sf::Keyboard::Key::Left, "Move Left",
 			sf::Keyboard::Key::Right, "Move Right",
 			sf::Keyboard::Key::RControl, "Fire Cannon",
-			sf::Keyboard::Key::Up, "Move Cannon Counterclockwise",
-			sf::Keyboard::Key::Down, "Move Cannon Clockwise"
+			sf::Keyboard::Key::Down, "Move Cannon Counterclockwise",
+			sf::Keyboard::Key::Up, "Move Cannon Clockwise"
 		},
 		
 		{	// P2

@@ -10,8 +10,8 @@ enum ObjectType	   { PLAYER, CANNONBALL, NONE };
 
 struct OverlappingWrapper
 {
-	float time;
-	class GameObject *object;
+	float time = 0.0f;
+	class GameObject *object = nullptr;
 };
 
 struct InputData
@@ -29,7 +29,7 @@ struct Graphics
 
 	int shape = CIRCLE;
 	float outlineThickness = 1.0f;
-	float radius;
+	float radius = 0.0f;
 	Rectangle<float> rect;
 
 
@@ -187,11 +187,12 @@ public:
 	float getCannonAngle() { return cannonAngle; }
 
 	InputComponent *getInputComponent() { return inputComponent; }
-	void takeDamage(int amount);
+	void takeDamage(GameObject *from, int amount);
 
 private:
 	std::string name;
-	int health		= 100;
+	float playerAngle	= 0.0f; // 180 or 0 degrees, debends on which side on screen he is
+	int health		= 100; 
 	int fullHealth	= 100;
 
 	float cannonAngle = 0.0f;
@@ -213,6 +214,7 @@ public:
 	~CannonBall();
 	void onNotify(GameObject *gameObject, int eventType, void *eventData);
 	void update(class World *world, float dT);
+	void processCollision(CollisionData *collisionData);
 
 private:
 	float explosionRadius = 50.0f;
@@ -220,6 +222,8 @@ private:
 	float damage = 20.0f;
 };
 
+
+// EXPLOSIONS //////////////////////////////////////////////////////////////////////////////////
 class Explosion : public GameObject
 {
 public:
@@ -228,6 +232,19 @@ public:
 
 	void onNotify(GameObject *gameObject, int evenType, void *eventData);
 	void update(class World *world, float dT);
+
+private:
+
+};
+
+class Explosion2 : public GameObject
+{
+public:
+	Explosion2();
+	~Explosion2();
+
+	void onNotify(GameObject *gameObject, int evenType, void *eventData) {};
+	void update(class World *world, float dT) {};
 
 private:
 

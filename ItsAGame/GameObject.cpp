@@ -200,32 +200,28 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 		{
 		case E_START_OVERLAP:
 		{
-				CollisionData *data = (CollisionData *)eventData;
-				if (data->colliedGameObject != this->getOwner())
-				{
-					subject->notifySubject(E_SPAWN_EXPLOSION, (void*)&position);
-     				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
-					subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
-
-	
-					if (data->colliedGameObject->getType() == PLAYER)
-					{
-						Player *player = (Player *)data->colliedGameObject;
-						player->takeDamage(damage);
-					}
-										
-				}
+			processCollision((CollisionData *)eventData);
 		} break;
 
 		case E_COLLISION_WITH_LEVEL:
 		{
-				Level *levelPointer = (Level *)eventData;
+			Level *levelPointer = (Level *)eventData;
 				levelPointer->doCircleHole(position, explosionRadius, sf::Color(0,0,0,0));
-				subject->notifySubject(E_SPAWN_EXPLOSION, (void*)&position);
-			
-				subject->notifySubject(E_PLAY_SOUND, (void*)(&soundIndex));
+		
+				ExplosionData explosionData{ position, 0 };
+				subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
 
-				subject->notifySubject(E_REMOVE_GAMEOBJECT, (void*)this);
+				subject->notifySubject(E_PLAY_SOUND, &soundIndex);
+
+				subject->notifySubject(E_REMOVE_GAMEOBJECT, this);
+		} break;
+
+		case E_ANOTHER_GAMEOBJECT_COLLIED:
+		{
+			ExplosionData explosionData{ position, 0 };
+			subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
+			subject->notifySubject(E_PLAY_SOUND, &soundIndex);
+			subject->notifySubject(E_REMOVE_GAMEOBJECT, this);
 		} break;
 
 		default:break;
@@ -249,6 +245,33 @@ void CannonBall::onNotify(GameObject * gameObject, int eventType, void * eventDa
 void CannonBall::update(class World *world, float dT)
 {
 	physicsComponent->update(world, dT);
+}
+
+void CannonBall::processCollision(CollisionData * collisionData)
+{
+	if (collisionData->colliedGameObject != this->getOwner())
+	{
+		int soundIndex = 1;
+		CollisionData data;
+		data.gameObject =	     collisionData->colliedGameObject;
+		data.colliedGameObject = collisionData->gameObject;
+
+
+		if (collisionData->colliedGameObject->getType() == PLAYER)
+		{
+			Player *player = (Player *)collisionData->colliedGameObject;
+			player->takeDamage(collisionData->gameObject->getOwner(), damage);
+		}
+		subject->notify(data.gameObject, E_ANOTHER_GAMEOBJECT_COLLIED, &data);
+
+		ExplosionData explosionData{ position, 0 };
+		subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
+		subject->notifySubject(E_PLAY_SOUND, &soundIndex);
+		subject->notifySubject(E_REMOVE_GAMEOBJECT, this);
+
+
+
+	}
 }
 
 
@@ -401,12 +424,15 @@ void Player::moveCannonAngleDown(float dT)
 	cannon->angle = 360-cannonAngle;
 }
 
-void Player::takeDamage(int amount)
+void Player::takeDamage(GameObject *from, int amount)
 {
 	health -= amount;
 	if (health <= 0)
 	{
-		subject->notifySubject(E_REMOVE_PLAYER, (void*)this);
+		ExplosionData explosionData{ position, 1 };
+		subject->notifySubject(E_SPAWN_EXPLOSION, &explosionData);
+		PlayerKilledData data{ from, this };
+		subject->notifySubject(E_REMOVE_PLAYER, &data);
 	}
 }
 
@@ -491,5 +517,30 @@ void Explosion::onNotify(GameObject * gameObject, int evenType, void * eventData
 }
 
 void Explosion::update(World * world, float dT)
+{
+}
+
+Explosion2::Explosion2()
+{
+	renderComponent = new RenderComponent(this);
+	Graphics *graphics = new Graphics;
+
+
+	renderComponent->animHeight = 512;
+	renderComponent->animWidth = 512;
+	renderComponent->currentFrame = 0;
+	renderComponent->numAnimFrames = 64;
+	renderComponent->timePerFrame = 0.25f;
+
+	graphics->type = RENDER_ANIM;
+	graphics->textureID = 3;
+
+	graphics->vertices.setPrimitiveType(sf::Quads);
+	graphics->vertices.resize(4);
+
+	renderComponent->graphics.push_back(graphics);
+}
+
+Explosion2::~Explosion2()
 {
 }

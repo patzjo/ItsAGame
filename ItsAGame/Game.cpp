@@ -36,6 +36,8 @@ void Game::run()
 	sf::Clock clock;
 	while (state.getState() != StateEnum::QUIT)
 	{
+		state.changeRequestedState();
+
 		switch (state.getState())
 		{
 		case StateEnum::MENU:
@@ -82,7 +84,7 @@ void Game::processEvents(sf::RenderWindow & window)
 				break;
 
 			case sf::Keyboard::F1:
-				state.setState(StateEnum::START_NEW_GAME);
+				state.requestState(StateEnum::START_NEW_GAME);
 				break;
 
 			default: break;
@@ -105,15 +107,16 @@ void Game::playLoop()
 		world.startAgain();
 		state.setState(StateEnum::PLAYING);
 	}
-
 	int frames = 0;
 	int framesPerSec = 0;
 	float timeElapsed = 0.0f;
 
 	sf::Clock clock;
 	bool firstFrame = true;
+
 	while (state.getState() == StateEnum::PLAYING)
 	{
+
 		deltaTime = clock.restart().asSeconds();
 		processEvents(renderer.getWindow());
 		
@@ -145,7 +148,6 @@ void Game::playLoop()
 		
 		firstFrame = false;
 	}
-
 }
 
 void Game::menuLoop()
@@ -179,5 +181,19 @@ void Game::showFPS(int frameCount)
 	text += players[0]->falling ? "Yes" : "No";
 */
 	renderer.pushText(text, { 0.0f, 0.0f }, 0, 32, sf::Color::White);
+}
+
+void Game::updateGameSituation(PlayerKilledData * data)
+{
+	int alivePlayers = 0;
+	for (unsigned int c = 0; c < playerCount; c++)
+		if (players[c])
+			alivePlayers++;
+
+	if (alivePlayers <= 1)
+	{
+		state.requestState(START_NEW_GAME);
+		//		state.setState(START_NEW_GAME);
+	}
 }
 
