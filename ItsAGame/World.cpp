@@ -212,7 +212,7 @@ void World::notifySubject(int event, void *data)
 	case E_REMOVE_PLAYER:
 	{
 		
-		Player *player = ((PlayerKilledData *)data)->player;;
+		Player *player = ((PlayerKilledData *)data)->player;
 		player->active = false;
 		for (unsigned int c = 0; c < game->getPlayerCount(); c++)
 		{
@@ -265,6 +265,12 @@ void World::notifySubject(int event, void *data)
 				notifySubject(E_REMOVE_GAMEOBJECT, gameObjects[c]);
 				break;
 			}
+
+		game->clearPlayers();
+
+		if (gameObjects.size())
+			gameObjects.clear();
+
 	} break;
 
 	default: break;
@@ -301,6 +307,7 @@ void World::queueToRemove(GameObject * object)
 		*/
 	object->active = false;
 	objectsToRemove.push(object);
+
 }
 
 void World::queueToCreate(sf::Vector2f position, GameObject *object)
@@ -316,11 +323,11 @@ void World::processQueues()
 {
 	while (!objectsToRemove.empty())
 	{
-		
 		removeObserver(objectsToRemove.front());
 		game->renderer.removeRenderable(objectsToRemove.front()->getRenderComponent());
 		//		collisionTree.remove(objectsToRemove.front());
-
+		objectsToRemove.front()->active = false;
+		collisionTree.remove(objectsToRemove.front());
 		objectsToRemove.pop();
 	}
 

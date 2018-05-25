@@ -15,6 +15,8 @@ public:
 	const std::vector <Rectangle<float>>& getLevelCollisionBoxes() { return levelCollisionBoxes; }
 	void setLevelCollisionBoxes(std::vector <Rectangle<float>>LCB);
 
+	void clearTree();
+
 private:
 	std::vector <class GameObject *> trackedObjects;
 	std::vector <Rectangle<float>> levelCollisionBoxes;

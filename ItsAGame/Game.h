@@ -37,6 +37,8 @@ public:
 
 	State *getState() { return &state; }
 
+	void clearPlayers();
+
 private:
 	struct GameOptions options;		// Options
 	class Input input;				// Inputs

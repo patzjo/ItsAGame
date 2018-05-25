@@ -65,9 +65,13 @@ void Game::run()
 
 		case StateEnum::START_NEW_GAME:
 			world.notifySubject(E_START_AGAIN, 0);
+			
+			world.collisionTree.clearTree();
+
 			world.level.generateRectangleLevel(options.screenWidth, options.screenHeight, 200, 600, 100, 200, sf::Color::Blue);
 			world.collisionTree.setLevelCollisionBoxes(world.level.getLevelCollisionBoxes());
 			world.startAgain();
+
 			winningInformationTime = 0.0f;
 			state.requestState(StateEnum::PLAYING);
 			world.applyWind(4, 4);
@@ -83,9 +87,12 @@ void Game::run()
 				winningInformationTime = 0.0f;
 				state.requestState(START_NEW_GAME);
 			}
+			else
+			{
+				renderer.pushText("Winner is " + roundWinner, {renderer.getWindow().getSize().x/2.0f, renderer.getWindow().getSize().y / 2.0f - 200.0f}, 0, 128, sf::Color::Yellow, true);
+				renderer.pushText("New round in " + std::to_string((int)(10.0f - winningInformationTime)), { renderer.getWindow().getSize().x / 2.0f, renderer.getWindow().getSize().y / 2.0f }, 0, 128, sf::Color::Yellow, true);
+			}
 
-			renderer.pushText("Winner is " + roundWinner, {renderer.getWindow().getSize().x/2.0f, renderer.getWindow().getSize().y / 2.0f - 200.0f}, 0, 128, sf::Color::Yellow, true);
-			renderer.pushText("New round in " + std::to_string((int)(10.0f - winningInformationTime)), { renderer.getWindow().getSize().x / 2.0f, renderer.getWindow().getSize().y / 2.0f }, 0, 128, sf::Color::Yellow, true);
 		} 
 
 		case StateEnum::PLAYING:
@@ -200,7 +207,7 @@ void Game::processEvents(sf::RenderWindow & window)
 	}
 
 	// Do not update keys if winner is clear
-	if ( state.getState() != ANNOUNCE_WINNER )
+	if ( state.getState() == PLAYING )
 		for (unsigned int c = 0; c < playerCount; c++)
 		{
 			if ( players[c] )
@@ -266,5 +273,11 @@ void Game::updateGameSituation(PlayerKilledData * data)
 		state.requestState(ANNOUNCE_WINNER);
 		//		state.setState(START_NEW_GAME);
 	}
+}
+
+void Game::clearPlayers()
+{
+	for (unsigned int c = 0; c < 4; c++)
+		players[c] = nullptr;
 }
 

@@ -212,6 +212,20 @@ public:
 		}
 	}
 
+	size_t getObjectCount()
+	{
+		size_t result = 0;
+		if (nodes == nullptr)
+			return result;
+
+		for (int c = 0; c < indexCount; c++)
+		{
+			result += nodes[c].objects.size();
+		}
+		
+		return result;
+	}
+
 	bool _insert(QTreeNode<T> *node, QTreeNodeWrapper <T>item)
 	{
 		
@@ -280,7 +294,6 @@ public:
 			showDebugRectangles = 0;
 	}
 
-//protected:
 	QTreeNode <T> *nodes = nullptr;
 	int NODE_CAPACITY = 4;
 	int MAX_DEPTH = 0;

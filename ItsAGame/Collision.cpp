@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include "Collision.h"
-
+#include <iostream>
 
 void CollisionQTree::add(class GameObject *object)
 {
@@ -54,6 +54,14 @@ void CollisionQTree::pushLevelCollisionRectangle(Rectangle<float> rect)
 
 void CollisionQTree::setLevelCollisionBoxes(std::vector<Rectangle<float>> LCB)
 {
+	levelCollisionBoxes.clear();
 	levelCollisionBoxes = LCB;
+}
+
+void CollisionQTree::clearTree()
+{
+	clear();
+	trackedObjects.clear(); 
+	levelCollisionBoxes.clear();
 }
 
