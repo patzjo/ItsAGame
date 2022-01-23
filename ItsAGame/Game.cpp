@@ -159,12 +159,24 @@ void Game::processEvents(sf::RenderWindow & window)
 				break;
 
 			case sf::Keyboard::I:
-				world.createObject((sf::Vector2f)input.getMousePosition(), new CannonBall());
+					
+					for (float angle = 0.0f; angle < 2 * PI; angle += 0.11) {
+						GameObject* o = new CannonBall();
+
+						o->vel.x = cosf(angle) * 10.0f;
+						o->vel.y = sinf(angle) * 10.0f;
+						
+						world.createObject((sf::Vector2f)input.getMousePosition()+sf::Vector2f(100*cosf(angle), 100*sinf(angle)), o);
+					}
 				break;
 
 			case sf::Keyboard::Q:
 				world.collisionTree.toggleDebug();
 				break;
+			case sf::Keyboard::R:
+				toggleFPS();
+				break;
+
 
 			case sf::Keyboard::F1:
 				state.requestState(StateEnum::START_NEW_GAME);
